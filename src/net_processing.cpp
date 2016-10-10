@@ -193,6 +193,11 @@ struct CNodeState {
     bool fPreferHeaderAndIDs;
     //! Whether this peer will send us cmpctblocks if we request them
     bool fProvidesHeaderAndIDs;
+    /**
+     * If we've announced last version to this peer: whether the peer sends last version in cmpctblocks/blocktxns,
+     * otherwise: whether this peer sends non-last version in cmpctblocks/blocktxns.
+     */
+    bool fSupportsDesiredCmpctVersion;
 
     CNodeState(CAddress addrIn, std::string addrNameIn) : address(addrIn), name(addrNameIn) {
         fCurrentlyConnected = false;
@@ -213,6 +218,7 @@ struct CNodeState {
         fPreferHeaders = false;
         fPreferHeaderAndIDs = false;
         fProvidesHeaderAndIDs = false;
+        fSupportsDesiredCmpctVersion = true; // we have only one version for now
     }
 };
 

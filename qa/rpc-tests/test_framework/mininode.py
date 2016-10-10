@@ -617,13 +617,10 @@ class PrefilledTransaction(object):
         self.tx = CTransaction()
         self.tx.deserialize(f)
 
-    def serialize(self, with_witness=False):
+    def serialize(self):
         r = b""
         r += ser_compact_size(self.index)
-        if with_witness:
-            r += self.tx.serialize_with_witness()
-        else:
-            r += self.tx.serialize_without_witness()
+        r += self.tx.serialize()
         return r
 
     def __repr__(self):
@@ -650,7 +647,7 @@ class P2PHeaderAndShortIDs(object):
         self.prefilled_txn = deser_vector(f, PrefilledTransaction)
         self.prefilled_txn_length = len(self.prefilled_txn)
 
-    def serialize(self, with_witness=False):
+    def serialize(self):
         r = b""
         r += self.header.serialize()
         r += struct.pack("<Q", self.nonce)
@@ -775,13 +772,10 @@ class BlockTransactions(object):
         self.blockhash = deser_uint256(f)
         self.transactions = deser_vector(f, CTransaction)
 
-    def serialize(self, with_witness=False):
+    def serialize(self):
         r = b""
         r += ser_uint256(self.blockhash)
-        if with_witness:
-            r += ser_vector(self.transactions, "serialize_with_witness")
-        else:
-            r += ser_vector(self.transactions)
+        r += ser_vector(self.transactions)
         return r
 
     def __repr__(self):
