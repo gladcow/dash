@@ -82,7 +82,7 @@ namespace {
      * messages or ban them when processing happens afterwards. Protected by
      * cs_main.
      */
-    std::map<uint256, NodeId> mapBlockSource;
+    std::map<uint256, std::pair<NodeId, bool> > mapBlockSource;
 
     /**
      * Filter for transactions that were recently rejected by
@@ -781,16 +781,16 @@ void PeerLogicValidation::BlockChecked(const CBlock& block, const CValidationSta
     LOCK(cs_main);
 
     const uint256 hash(block.GetHash());
-    std::map<uint256, NodeId>::iterator it = mapBlockSource.find(hash);
+    std::map<uint256, std::pair<NodeId, bool> >::iterator it = mapBlockSource.find(hash);
 
     int nDoS = 0;
     if (state.IsInvalid(nDoS)) {
-        if (it != mapBlockSource.end() && State(it->second)) {
+        if (it != mapBlockSource.end() && State(it->second.first)) {
             assert (state.GetRejectCode() < REJECT_INTERNAL); // Blocks are never rejected with internal reject codes
             CBlockReject reject = {(unsigned char)state.GetRejectCode(), state.GetRejectReason().substr(0, MAX_REJECT_MESSAGE_LENGTH), hash};
-            State(it->second)->rejects.push_back(reject);
-            if (nDoS > 0)
-                Misbehaving(it->second, nDoS);
+            State(it->second.first)->rejects.push_back(reject);
+            if ((nDoS > 0) && (it->second.second))
+                Misbehaving(it->second.first, nDoS);
         }
     }
     if (it != mapBlockSource.end())
@@ -2161,11 +2161,15 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
                 std::vector<CInv> invs;
                 invs.push_back(CInv(MSG_BLOCK, resp.blockhash));
                 connman.PushMessage(pfrom, msgMaker.Make(NetMsgType::GETDATA, invs));
-            } else
+            } else {
+                MarkBlockAsReceived(resp.blockhash); // it is now an empty pointer
                 fBlockRead = true;
+            }
         } // Don't hold cs_main when we call into ProcessNewBlock
         if(fBlockRead) {
             bool fNewBlock = false;
+            // Since we requested this block (it was in mapBlocksInFlight), force it to be processed,
+            // even if it would not be a candidate for new tip (missing previous block, chain not long enough, etc)
             ProcessNewBlock(chainparams, &block, false, &fNewBlock);
             if (fNewBlock)
                 pfrom->nLastBlockTime = GetTime();
@@ -2352,7 +2356,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
             forceProcessing |= MarkBlockAsReceived(hash);
             // mapBlockSource is only used for sending reject messages and DoS scores,
             // so the race between here and cs_main in ProcessNewBlock is fine.
-            mapBlockSource.emplace(hash, pfrom->GetId());
+            mapBlockSource.emplace(hash, std::make_pair(pfrom->GetId(), true));
         }
         bool fNewBlock = false;
         ProcessNewBlock(chainparams, pblock, forceProcessing, &fNewBlock);
