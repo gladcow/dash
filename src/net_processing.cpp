@@ -1701,10 +1701,10 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
             // expensive disk reads, because it will require the peer to
             // actually receive all the data read from disk over the network.
             LogPrint("net", "Peer %d sent us a getblocktxn for a block > %i deep", pfrom->id, MAX_BLOCKTXN_DEPTH);
-            CInv vInv;
-            vInv.type = MSG_BLOCK;
-            vInv.hash = req.blockhash;
-            pfrom->vRecvGetData.push_back(vInv);
+            CInv inv;
+            inv.type = MSG_BLOCK;
+            inv.hash = req.blockhash;
+            pfrom->vRecvGetData.push_back(inv);
             ProcessGetData(pfrom, chainparams.GetConsensus(), connman, interruptMsgProc);
             return true;
         }
