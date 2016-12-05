@@ -2153,7 +2153,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
         BlockTransactions resp;
         vRecv >> resp;
 
-        CBlock block;
+        std::shared_ptr<CBlock> pblock = std::make_shared<CBlock>();
         bool fBlockRead = false;
         {
             LOCK(cs_main);
@@ -2166,7 +2166,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
             }
 
             PartiallyDownloadedBlock& partialBlock = *it->second.second->partialBlock;
-            ReadStatus status = partialBlock.FillBlock(block, resp.txn);
+            ReadStatus status = partialBlock.FillBlock(*pblock, resp.txn);
             if (status == READ_STATUS_INVALID) {
                 MarkBlockAsReceived(resp.blockhash); // Reset in-flight state in case of whitelist
                 Misbehaving(pfrom->GetId(), 100);
@@ -2186,7 +2186,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
             bool fNewBlock = false;
             // Since we requested this block (it was in mapBlocksInFlight), force it to be processed,
             // even if it would not be a candidate for new tip (missing previous block, chain not long enough, etc)
-            ProcessNewBlock(chainparams, &block, false, &fNewBlock);
+            ProcessNewBlock(chainparams, pblock, true, NULL, &fNewBlock);
             if (fNewBlock)
                 pfrom->nLastBlockTime = GetTime();
         }
@@ -2375,7 +2375,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
             mapBlockSource.emplace(hash, std::make_pair(pfrom->GetId(), true));
         }
         bool fNewBlock = false;
-        ProcessNewBlock(chainparams, pblock, forceProcessing, &fNewBlock);
+        ProcessNewBlock(chainparams, pblock, forceProcessing, NULL, &fNewBlock);
         if (fNewBlock)
             pfrom->nLastBlockTime = GetTime();
     }
