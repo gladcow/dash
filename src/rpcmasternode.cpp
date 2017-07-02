@@ -530,7 +530,7 @@ UniValue masternodelist(const UniValue& params, bool fHelp)
                                CBitcoinAddress(mn.pubKeyCollateralAddress.GetID()).ToString() << " " <<
                                (int64_t)mn.lastPing.sigTime << " " << std::setw(8) <<
                                (int64_t)(mn.lastPing.sigTime - mn.sigTime) << " " <<
-                               IntVersionToString(mn.lastPing.nSentinelVersion) << " "  <<
+                               SafeIntVersionToString(mn.lastPing.nSentinelVersion) << " "  <<
                                std::setw(6) << mn.addr.ToString();
                 std::string strInfo = streamInfo.str();
                 if (strFilter !="" && strInfo.find(strFilter) == std::string::npos &&
