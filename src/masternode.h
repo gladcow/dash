@@ -28,7 +28,7 @@ static const int MASTERNODE_POSE_BAN_MAX_SCORE          = 5;
 // The Masternode Ping Class : Contains a different serialize method for sending pings from masternodes throughout the network
 //
 
-// sentinel version defore sentinel ping implementation
+// sentinel version before sentinel ping implementation
 #define DEFAULT_SENTINEL_VERSION 0x010001
 
 class CMasternodePing
