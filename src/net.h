@@ -341,6 +341,7 @@ public:
     void SetBestHeight(int height);
     int GetBestHeight() const;
 
+    size_t GetUsedSize();
 
 private:
     struct ListenSocket {

@@ -48,6 +48,9 @@
 #include <boost/math/distributions/poisson.hpp>
 #include <boost/thread.hpp>
 
+#include "memory_logger.h"
+
+
 using namespace std;
 
 #if defined(NDEBUG)
@@ -4340,3 +4343,34 @@ public:
         mapBlockIndex.clear();
     }
 } instance_of_cmaincleanup;
+
+class ml_filler
+{
+public:
+    ml_filler()
+    {
+        memory_logger* mlogger = memory_logger::get_instance();
+        mlogger->add("mapBlockIndex",
+                        [](){
+                                LOCK(cs_main);
+                                return mapBlockIndex.size() *
+                                        (sizeof(uint256) + sizeof(CBlockIndex));
+                            }
+
+                );
+        mlogger->add("chainActive",
+                     []()->size_t {
+                         LOCK(cs_main);
+                         return chainActive.Height() * sizeof(CBlockIndex*);
+                     });
+        mlogger->add("mapRejectedBlocks",
+                     []()->size_t {
+                         LOCK(cs_main);
+                         return mapRejectedBlocks.size() * (sizeof(uint256) + sizeof(uint256));
+                     });
+        mlogger->add("mempool",
+                     []()->size_t {
+                         return mempool.GetTotalTxSize();
+                     });
+    }
+} ml_filler_instance;

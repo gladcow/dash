@@ -26,6 +26,7 @@
 #include "masternode-sync.h"
 #include "masternodeman.h"
 #include "privatesend.h"
+#include "memory_logger.h"
 
 #ifdef WIN32
 #include <string.h>
@@ -2599,6 +2600,12 @@ int CConnman::GetBestHeight() const
     return nBestHeight.load(std::memory_order_acquire);
 }
 
+size_t CConnman::GetUsedSize()
+{
+    size_t res = 0;
+    return res;
+}
+
 unsigned int CConnman::GetReceiveFloodSize() const { return nReceiveFloodSize; }
 unsigned int CConnman::GetSendBufferSize() const{ return nSendBufferMaxSize; }
 
@@ -2842,3 +2849,20 @@ void CConnman::ReleaseNodeVector(const std::vector<CNode*>& vecNodes)
         pnode->Release();
     }
 }
+
+class net_mem_log
+{
+public:
+    net_mem_log()
+    {
+        memory_logger* ml = memory_logger::get_instance();
+        ml->add("net.cpp::mapRelay", []()->size_t {
+            LOCK(cs_mapRelay);
+            size_t s = 0;
+            for(auto& p: mapRelay)
+                s += p.first.GetSerializeSize(SER_DISK, PROTOCOL_VERSION) +
+                    p.second.size();
+            return s;
+        });
+    }
+} mem_log_instance;

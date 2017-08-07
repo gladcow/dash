@@ -85,6 +85,8 @@
 #include "zmq/zmqnotificationinterface.h"
 #endif
 
+#include "memory_logger.h"
+
 using namespace std;
 
 extern void ThreadSendAlert(CConnman& connman);
@@ -1010,6 +1012,10 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
         }
 #endif
     }
+
+    memory_logger::get_instance()->add("g_connman",
+                                       []()->size_t {return g_connman->GetUsedSize();}
+                                       );
 
     // Make sure enough file descriptors are available
     int nBind = std::max((int)mapArgs.count("-bind") + (int)mapArgs.count("-whitebind"), 1);

@@ -132,6 +132,7 @@ BITCOIN_CORE_H = \
   masternode-sync.h \
   masternodeman.h \
   masternodeconfig.h \
+  memory_logger.h \
   memusage.h \
   merkleblock.h \
   messagesigner.h \
@@ -225,6 +226,7 @@ libbitcoin_server_a_SOURCES = \
   governance-validators.cpp \
   governance-vote.cpp \
   governance-votedb.cpp \
+  memory_logger.cpp \
   merkleblock.cpp \
   messagesigner.cpp \
   miner.cpp \
