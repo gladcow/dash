@@ -9,7 +9,7 @@ import sys
 import os
 sys.path.append(os.getcwd())
 import stl_containers
-import mnodeman
+import simple_class_obj
 
 SIZE_OF_INT = 4
 SIZE_OF_BOOL = 1
@@ -28,18 +28,8 @@ def get_special_type_obj(obj_str, obj_type):
         return stl_containers.MapObj(obj_str, obj_type)
     if stl_containers.SetObj.is_this_type(obj_type):
         return stl_containers.SetObj(obj_str, obj_type)
-    if mnodeman.CMasternodeObj.is_this_type(obj_type):
-        return mnodeman.CMasternodeObj(obj_str, obj_type)
-    if mnodeman.CMasternodeVerificationObj.is_this_type(obj_type):
-        return mnodeman.CMasternodeVerificationObj(obj_str, obj_type)
-    if mnodeman.CMasternodeBroadcastObj.is_this_type(obj_type):
-        return mnodeman.CMasternodeBroadcastObj(obj_str, obj_type)
-    if mnodeman.CMasternodeIndexObj.is_this_type(obj_type):
-        return mnodeman.CMasternodeIndexObj(obj_str, obj_type)
-    if mnodeman.CMasternodePingObj.is_this_type(obj_type):
-        return mnodeman.CMasternodePingObj(obj_str, obj_type)
-    if mnodeman.CMasternodeManObj.is_this_type(obj_type):
-        return mnodeman.CMasternodeManObj(obj_str, obj_type)
+    if simple_class_obj.SimpleClassObj.is_this_type(obj_type):
+        return simple_class_obj.SimpleClassObj(obj_str, obj_type)
     return False
 
 
