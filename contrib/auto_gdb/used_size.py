@@ -29,14 +29,14 @@ class UsedSizeCommand (gdb.Command):
     def invoke(self, arg, from_tty):
         try:
             args = gdb.string_to_argv(arg)
-            obj_type = UsedSizeCommand.get_type(args[1])
+            obj = gdb.parse_and_eval(args[1])
+            obj_type = obj.type
             print (args[1] + " is " + str(obj_type))
-            size = common_helpers.get_instance_size(args[1], obj_type)
+            size = common_helpers.get_instance_size(obj)
             UsedSizeCommand.assign_value(args[0], size)
-            size_obj = gdb.parse_and_eval(args[0])
-            print (size_obj)
+            print (size)
 
-        except gdb.error as e:
+        except Exception as e:
             print(traceback.format_exc())
             raise e
 

@@ -6,6 +6,7 @@ try:
 except ImportError as e:
     raise ImportError("This script must be run in GDB: ", str(e))
 import traceback
+import datetime
 import sys
 import os
 sys.path.append(os.getcwd())
@@ -21,13 +22,12 @@ class LogSizeCommand (gdb.Command):
     def invoke(self, arg, from_tty):
         try:
             args = gdb.string_to_argv(arg)
-            obj = args[0]
-            obj_type = gdb.parse_and_eval(obj).type
+            obj = gdb.parse_and_eval(args[0])
             logfile = open(args[1], 'a')
-            size = common_helpers.get_instance_size(obj, obj_type)
-            logfile.write("%s: %d\n" % (str(obj), size))
+            size = common_helpers.get_instance_size(obj)
+            logfile.write("%s %s: %d\n" % (str(datetime.datetime.now()), args[0], size))
             logfile.close()
-        except gdb.error as e:
+        except Exception as e:
             print(traceback.format_exc())
             raise e
 

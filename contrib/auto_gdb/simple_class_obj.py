@@ -28,9 +28,8 @@ simple_templates = ["CacheMultiMap", "CacheMap"]
 
 class SimpleClassObj:
 
-    def __init__ (self, obj_name, obj_type):
-        self.obj_name = obj_name
-        self.obj_type = obj_type
+    def __init__ (self, gobj):
+        self.obj = gobj
 
     @classmethod
     def is_this_type(cls, obj_type):
@@ -44,15 +43,15 @@ class SimpleClassObj:
 
     def get_used_size(self):
         size = 0
-        fields = self.obj_type.fields()
+        fields = self.obj.type.fields()
         for f in fields:
             # check if it is static field
             if not hasattr(f, "bitpos"):
                 continue
             # process base class size
             if f.is_base_class:
-                size += common_helpers.get_instance_size(self.obj_name, f.type.strip_typedefs())
+                size += common_helpers.get_instance_size(self.obj.cast(f.type.strip_typedefs()))
                 continue
             # process simple field
-            size += common_helpers.get_instance_size("(" + self.obj_name + ")." + f.name, f.type.strip_typedefs())
+            size += common_helpers.get_instance_size(self.obj[f.name])
         return size
