@@ -222,7 +222,7 @@ struct CNodeState {
         fPreferHeaders = false;
         fPreferHeaderAndIDs = false;
         fProvidesHeaderAndIDs = false;
-        fSupportsDesiredCmpctVersion = true; // we have only one version for now
+        fSupportsDesiredCmpctVersion = false;
     }
 };
 
@@ -1638,6 +1638,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
             LOCK(cs_main);
             State(pfrom->GetId())->fProvidesHeaderAndIDs = true;
             State(pfrom->GetId())->fPreferHeaderAndIDs = fAnnounceUsingCMPCTBLOCK;
+            State(pfrom->GetId())->fSupportsDesiredCmpctVersion = true;
         }
     }
 
