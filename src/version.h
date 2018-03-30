@@ -44,7 +44,7 @@ static const int FEEFILTER_VERSION = 99999; // disable for now (clarify deployme
 //! DIP0001 was activated in this version
 static const int DIP0001_PROTOCOL_VERSION = 70208;
 
-//! shord-id-based block download starts with this version
+//! short-id-based block download starts with this version
 static const int SHORT_IDS_BLOCKS_VERSION = 70209;
 
 #endif // BITCOIN_VERSION_H
