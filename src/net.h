@@ -418,7 +418,6 @@ private:
     CNode* FindNode(const CSubNet& subNet);
     CNode* FindNode(const std::string& addrName);
     CNode* FindNode(const CService& addr);
-    CNode* FindNode(const NodeId& id); //TODO: Remove this
 
     bool AttemptToEvictConnection();
     CNode* ConnectNode(CAddress addrConnect, const char *pszDest = NULL, bool fCountFailure = false);
