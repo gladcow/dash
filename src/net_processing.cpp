@@ -2176,6 +2176,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
         CBlockHeaderAndShortTxIDs cmpctblock;
         vRecv >> cmpctblock;
 
+        {
         LOCK(cs_main);
 
         if (mapBlockIndex.find(cmpctblock.header.hashPrevBlock) == mapBlockIndex.end()) {
@@ -2184,14 +2185,17 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
                 connman.PushMessage(pfrom, msgMaker.Make(NetMsgType::GETHEADERS, chainActive.GetLocator(pindexBestHeader), uint256()));
             return true;
         }
+        }
 
         const CBlockIndex *pindex = NULL;
         CValidationState state;
         if (!ProcessNewBlockHeaders({cmpctblock.header}, state, chainparams, &pindex)) {
             int nDoS;
             if (state.IsInvalid(nDoS)) {
-                if (nDoS > 0)
+                if (nDoS > 0) {
+                    LOCK(cs_main);
                     Misbehaving(pfrom->GetId(), nDoS);
+                }
                 LogPrintf("Peer %d sent us invalid header via cmpctblock\n", pfrom->id);
                 return true;
             }
