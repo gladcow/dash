@@ -1304,6 +1304,24 @@ inline void static SendBlockTransactions(const CBlock& block, const BlockTransac
     connman.PushMessage(pfrom, msgMaker.Make(NetMsgType::BLOCKTXN, resp));
 }
 
+bool static CheckGoodHeadersSyncPeer(CNode* pfrom, const CChainParams& chainparams, int nCount)
+{
+    AssertLockHeld(cs_main);
+
+    bool fGenesis = pindexBestHeader->GetBlockHash() == chainparams.GetConsensus().hashGenesisBlock;
+    bool fDevNetGenesis = !chainparams.GetConsensus().hashDevnetGenesisBlock.IsNull() && pindexBestHeader->GetBlockHash() == chainparams.GetConsensus().hashDevnetGenesisBlock;
+    if (!fGenesis && !fDevNetGenesis && nCount < MAX_HEADERS_RESULTS && GetAdjustedTime() - pindexBestHeader->GetBlockTime() > chainparams.DelayGetHeadersTime()) {
+        // peer has sent us a HEADERS message below maximum size and we are still quite far from being fully
+        // synced, this means we probably got a bad peer for initial sync and need to continue with another one.
+        // By disconnecting we force to start a new iteration of initial headers sync in SendMessages
+        // TODO should we handle whitelisted peers here as we do in headers sync timeout handling?
+        pfrom->fDisconnect = true;
+        return error("detected bad peer for initial headers sync, disconnecting peer=%d", pfrom->id);
+    }
+
+    return true;
+}
+
 bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStream& vRecv, int64_t nTimeReceived, const CChainParams& chainparams, CConnman& connman, const std::atomic<bool>& interruptMsgProc)
 {
     LogPrint("net", "received: %s (%u bytes) peer=%d\n", SanitizeString(strCommand), vRecv.size(), pfrom->id);
@@ -2448,7 +2466,9 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
         if (nCount == 0) {
             // Nothing interesting. Stop asking this peers for more headers.
-            return true;
+            // See if it's a peer with "good" headers though.
+            LOCK(cs_main);
+            return CheckGoodHeadersSyncPeer(pfrom, chainparams, nCount);
         }
 
         const CBlockIndex *pindexLast = NULL;
@@ -2522,17 +2542,8 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
             // from there instead.
             LogPrint("net", "more getheaders (%d) to end to peer=%d (startheight:%d)\n", pindexLast->nHeight, pfrom->id, pfrom->nStartingHeight);
             connman.PushMessage(pfrom, msgMaker.Make(NetMsgType::GETHEADERS, chainActive.GetLocator(pindexLast), uint256()));
-        }
-
-        bool fGenesis = pindexBestHeader->GetBlockHash() == chainparams.GetConsensus().hashGenesisBlock;
-        bool fDevNetGenesis = !chainparams.GetConsensus().hashDevnetGenesisBlock.IsNull() && pindexBestHeader->GetBlockHash() == chainparams.GetConsensus().hashDevnetGenesisBlock;
-        if (!fGenesis && !fDevNetGenesis && nCount < MAX_HEADERS_RESULTS && GetAdjustedTime() - pindexBestHeader->GetBlockTime() > chainparams.DelayGetHeadersTime()) {
-            // peer has sent us a HEADERS message below maximum size and we are still quite far from being fully
-            // synced, this means we probably got a bad peer for initial sync and need to continue with another one.
-            // By disconnecting we force to start a new iteration of initial headers sync in SendMessages
-            // TODO should we handle whitelisted peers here as we do in headers sync timeout handling?
-            pfrom->fDisconnect = true;
-            return error("detected bad peer for initial headers sync, disconnecting peer=%d", pfrom->id);
+        } else if (!CheckGoodHeadersSyncPeer(pfrom, chainparams, nCount)) {
+            return false;
         }
 
         bool fCanDirectFetch = CanDirectFetch(chainparams.GetConsensus());
