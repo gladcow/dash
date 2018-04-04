@@ -85,8 +85,10 @@ namespace {
      * Sources of received blocks, saved to be able to send them reject
      * messages or ban them when processing happens afterwards. Protected by
      * cs_main.
+     * Set mapBlockSource[hash].second to false if the node should not be
+     * punished if the block is invalid.
      */
-    std::map<uint256, std::pair<NodeId, bool> > mapBlockSource;
+    std::map<uint256, std::pair<NodeId, bool>> mapBlockSource;
 
     /**
      * Filter for transactions that were recently rejected by
@@ -352,7 +354,7 @@ bool MarkBlockAsInFlight(NodeId nodeid, const uint256& hash, const Consensus::Pa
     MarkBlockAsReceived(hash);
 
     std::list<QueuedBlock>::iterator it = state->vBlocksInFlight.insert(state->vBlocksInFlight.end(),
-                {hash, pindex, pindex != NULL, std::unique_ptr<PartiallyDownloadedBlock>(pit ? new PartiallyDownloadedBlock(&mempool) : NULL)});
+            {hash, pindex, pindex != NULL, std::unique_ptr<PartiallyDownloadedBlock>(pit ? new PartiallyDownloadedBlock(&mempool) : NULL)});
     state->nBlocksInFlight++;
     state->nBlocksInFlightValidHeaders += it->fValidatedHeaders;
     if (state->nBlocksInFlight == 1) {
@@ -859,7 +861,7 @@ void PeerLogicValidation::BlockChecked(const CBlock& block, const CValidationSta
             assert (state.GetRejectCode() < REJECT_INTERNAL); // Blocks are never rejected with internal reject codes
             CBlockReject reject = {(unsigned char)state.GetRejectCode(), state.GetRejectReason().substr(0, MAX_REJECT_MESSAGE_LENGTH), hash};
             State(it->second.first)->rejects.push_back(reject);
-            if ((nDoS > 0) && (it->second.second))
+            if (nDoS > 0 && it->second.second)
                 Misbehaving(it->second.first, nDoS);
         }
     }
@@ -1103,8 +1105,8 @@ void static ProcessGetData(CNode* pfrom, const Consensus::Params& consensusParam
                     else if (inv.type == MSG_CMPCT_BLOCK)
                     {
                         // If a peer is asking for old blocks, we're almost guaranteed
-                        // they wont have a useful mempool to match against a compact block,
-                        // and we dont feel like constructing the object for them, so
+                        // they won't have a useful mempool to match against a compact block,
+                        // and we don't feel like constructing the object for them, so
                         // instead we respond with the full, non-compact block.
                          if (CanDirectFetch(consensusParams) && mi->second->nHeight >= chainActive.Height() - MAX_CMPCTBLOCK_DEPTH) {
                             CBlockHeaderAndShortTxIDs cmpctblock(block);
@@ -1810,7 +1812,6 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
     }
 
 
-
     else if (strCommand == NetMsgType::GETBLOCKTXN)
     {
         BlockTransactionsRequest req;
@@ -2162,8 +2163,9 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
             if (state.GetRejectCode() < REJECT_INTERNAL) // Never send AcceptToMemoryPool's internal codes over P2P
                 connman.PushMessage(pfrom, msgMaker.Make(NetMsgType::REJECT, strCommand, (unsigned char)state.GetRejectCode(),
                                    state.GetRejectReason().substr(0, MAX_REJECT_MESSAGE_LENGTH), inv.hash));
-            if (nDoS > 0)
+            if (nDoS > 0) {
                 Misbehaving(pfrom->GetId(), nDoS);
+            }
         }
     }
 
@@ -2387,7 +2389,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
                 fBlockRead = true;
             }
         } // Don't hold cs_main when we call into ProcessNewBlock
-        if(fBlockRead) {
+        if (fBlockRead) {
             bool fNewBlock = false;
             // Since we requested this block (it was in mapBlocksInFlight), force it to be processed,
             // even if it would not be a candidate for new tip (missing previous block, chain not long enough, etc)
