@@ -5377,7 +5377,7 @@ int CMerkleTx::GetDepthInMainChain(const CBlockIndex* &pindexRet, bool enableIX)
     }
 
     if(enableIX && nResult < 6 && instantsend.IsLockedInstantSendTransaction(GetHash()))
-        return nInstantSendDepth + nResult;
+        return DEFAULT_INSTANTSEND_DEPTH + nResult;
 
     return nResult;
 }
