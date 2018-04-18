@@ -837,11 +837,6 @@ int CInstantSend::GetTransactionLockSignatures(const uint256& txHash)
     return -1;
 }
 
-int CInstantSend::GetConfirmations(const uint256 &nTXHash)
-{
-    return IsLockedInstantSendTransaction(nTXHash) ? DEFAULT_INSTANTSEND_DEPTH : 0;
-}
-
 bool CInstantSend::IsTxLockCandidateTimedOut(const uint256& txHash)
 {
     if(!fEnableInstantSend) return false;

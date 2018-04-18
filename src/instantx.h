@@ -139,8 +139,6 @@ public:
     bool IsLockedInstantSendTransaction(const uint256& txHash);
     /// Get the actual number of accepted lock signatures
     int GetTransactionLockSignatures(const uint256& txHash);
-    /// Get instantsend confirmations (only)
-    int GetConfirmations(const uint256 &nTXHash);
 
     /// Remove expired entries from maps
     void CheckAndRemove();
