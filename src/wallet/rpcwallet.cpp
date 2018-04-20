@@ -702,7 +702,7 @@ UniValue getreceivedbyaddress(const JSONRPCRequest& request)
 
         BOOST_FOREACH(const CTxOut& txout, wtx.tx->vout)
             if (txout.scriptPubKey == scriptPubKey)
-                if ((wtx.GetDepthInMainChain() >= nMinDepth) || (fAddLocked && wtx.IsLockedIX()))
+                if ((wtx.GetDepthInMainChain() >= nMinDepth) || (fAddLocked && wtx.IsLockedByInstantSend()))
                     nAmount += txout.nValue;
     }
 
@@ -760,7 +760,7 @@ UniValue getreceivedbyaccount(const JSONRPCRequest& request)
         {
             CTxDestination address;
             if (ExtractDestination(txout.scriptPubKey, address) && IsMine(*pwalletMain, address) && setAddress.count(address))
-                if ((wtx.GetDepthInMainChain() >= nMinDepth) || (fAddLocked && wtx.IsLockedIX()))
+                if ((wtx.GetDepthInMainChain() >= nMinDepth) || (fAddLocked && wtx.IsLockedByInstantSend()))
                     nAmount += txout.nValue;
         }
     }
@@ -827,7 +827,7 @@ UniValue getbalance(const JSONRPCRequest& request)
             std::list<COutputEntry> listReceived;
             std::list<COutputEntry> listSent;
             wtx.GetAmounts(listReceived, listSent, allFee, strSentAccount, filter);
-            if ((wtx.GetDepthInMainChain() >= nMinDepth) || (fAddLocked && wtx.IsLockedIX()))
+            if ((wtx.GetDepthInMainChain() >= nMinDepth) || (fAddLocked && wtx.IsLockedByInstantSend()))
             {
                 BOOST_FOREACH(const COutputEntry& r, listReceived)
                     nBalance += r.amount;
@@ -1199,7 +1199,7 @@ UniValue ListReceived(const UniValue& params, bool fByAccounts)
             continue;
 
         int nDepth = wtx.GetDepthInMainChain();
-        if ((nDepth < nMinDepth) && !(fAddLocked && wtx.IsLockedIX()))
+        if ((nDepth < nMinDepth) && !(fAddLocked && wtx.IsLockedByInstantSend()))
             continue;
 
         BOOST_FOREACH(const CTxOut& txout, wtx.tx->vout)
@@ -1423,7 +1423,7 @@ void ListTransactions(const CWalletTx& wtx, const std::string& strAccount, int n
     }
 
     // Received
-    if (listReceived.size() > 0 && ((wtx.GetDepthInMainChain() >= nMinDepth) || wtx.IsLockedIX()))
+    if (listReceived.size() > 0 && ((wtx.GetDepthInMainChain() >= nMinDepth) || wtx.IsLockedByInstantSend()))
     {
         BOOST_FOREACH(const COutputEntry& r, listReceived)
         {
@@ -1668,7 +1668,7 @@ UniValue listaccounts(const JSONRPCRequest& request)
         mapAccountBalances[strSentAccount] -= nFee;
         BOOST_FOREACH(const COutputEntry& s, listSent)
             mapAccountBalances[strSentAccount] -= s.amount;
-        if ((nDepth >= nMinDepth) || (fAddLocked && wtx.IsLockedIX()))
+        if ((nDepth >= nMinDepth) || (fAddLocked && wtx.IsLockedByInstantSend()))
         {
             BOOST_FOREACH(const COutputEntry& r, listReceived)
                 if (pwalletMain->mapAddressBook.count(r.destination))
