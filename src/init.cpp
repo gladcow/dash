@@ -251,6 +251,8 @@ void PrepareShutdown()
         flatdb3.Dump(governance);
         CFlatDB<CNetFulfilledRequestManager> flatdb4("netfulfilled.dat", "magicFulfilledCache");
         flatdb4.Dump(netfulfilledman);
+        CFlatDB<CInstantSend> flatdb5("instantsend.dat", "magicInstantSendCache");
+        flatdb5.Dump(instantsend);
     }
 
     UnregisterNodeSignals(GetNodeSignals());
@@ -1913,6 +1915,13 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
         CFlatDB<CNetFulfilledRequestManager> flatdb4(strDBName, "magicFulfilledCache");
         if(!flatdb4.Load(netfulfilledman)) {
             return InitError(_("Failed to load fulfilled requests cache from") + "\n" + (pathDB / strDBName).string());
+        }
+
+        strDBName = "instantsend.dat";
+        uiInterface.InitMessage(_("Loading InstantSend data cache..."));
+        CFlatDB<CInstantSend> flatdb5(strDBName, "magicInstantSendCache");
+        if(!flatdb5.Load(instantsend)) {
+            return InitError(_("Failed to load InstantSend data cache from") + "\n" + (pathDB / strDBName).string());
         }
     }
 
