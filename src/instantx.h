@@ -46,6 +46,8 @@ extern int nCompleteTXLocks;
 class CInstantSend
 {
 private:
+    static const std::string SERIALIZATION_VERSION_STRING;
+
     // Keep track of current block height
     int nCachedBlockHeight;
 
@@ -84,7 +86,37 @@ private:
     bool IsInstantSendReadyToLock(const uint256 &txHash);
 
 public:
-    CCriticalSection cs_instantsend;
+    mutable CCriticalSection cs_instantsend;
+
+    ADD_SERIALIZE_METHODS;
+
+    template <typename Stream, typename Operation>
+    inline void SerializationOp(Stream& s, Operation ser_action) {
+        std::string strVersion;
+        if(ser_action.ForRead()) {
+            READWRITE(strVersion);
+        }
+        else {
+            strVersion = SERIALIZATION_VERSION_STRING;
+            READWRITE(strVersion);
+        }
+
+        READWRITE(mapLockRequestAccepted);
+        READWRITE(mapLockRequestRejected);
+        READWRITE(mapTxLockVotes);
+        READWRITE(mapTxLockVotesOrphan);
+        READWRITE(mapTxLockCandidates);
+        READWRITE(mapVotedOutpoints);
+        READWRITE(mapLockedOutpoints);
+        READWRITE(mapMasternodeOrphanVotes);
+        READWRITE(nCachedBlockHeight);
+
+        if(ser_action.ForRead() && (strVersion != SERIALIZATION_VERSION_STRING)) {
+            Clear();
+        }
+    }
+
+    void Clear();
 
     void ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStream& vRecv, CConnman& connman);
 
@@ -119,7 +151,7 @@ public:
     void UpdatedBlockTip(const CBlockIndex *pindex);
     void SyncTransaction(const CTransaction& tx, const CBlockIndex *pindex, int posInBlock);
 
-    std::string ToString();
+    std::string ToString() const;
 };
 
 class CTxLockRequest
