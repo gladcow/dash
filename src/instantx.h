@@ -242,12 +242,23 @@ public:
     static const int SIGNATURES_REQUIRED        = 6;
     static const int SIGNATURES_TOTAL           = 10;
 
+    COutPointLock() {}
+
     COutPointLock(const COutPoint& outpointIn) :
         outpoint(outpointIn),
         mapMasternodeVotes()
         {}
 
     COutPoint GetOutpoint() const { return outpoint; }
+
+    ADD_SERIALIZE_METHODS;
+
+    template <typename Stream, typename Operation>
+    inline void SerializationOp(Stream& s, Operation ser_action) {
+        READWRITE(outpoint);
+        READWRITE(mapMasternodeVotes);
+        READWRITE(fAttacked);
+    }
 
     bool AddVote(const CTxLockVote& vote);
     std::vector<CTxLockVote> GetVotes() const;
