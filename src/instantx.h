@@ -277,6 +277,11 @@ private:
     int64_t nTimeCreated;
 
 public:
+    CTxLockCandidate() :
+        nConfirmedHeight(-1),
+        nTimeCreated(GetTime())
+    {}
+
     CTxLockCandidate(const CTxLockRequest& txLockRequestIn) :
         nConfirmedHeight(-1),
         nTimeCreated(GetTime()),
@@ -286,6 +291,16 @@ public:
 
     CTxLockRequest txLockRequest;
     std::map<COutPoint, COutPointLock> mapOutPointLocks;
+
+    ADD_SERIALIZE_METHODS;
+
+    template <typename Stream, typename Operation>
+    inline void SerializationOp(Stream& s, Operation ser_action) {
+        READWRITE(txLockRequest);
+        READWRITE(mapOutPointLocks);
+        READWRITE(nTimeCreated);
+        READWRITE(nConfirmedHeight);
+    }
 
     uint256 GetHash() const { return txLockRequest.GetHash(); }
 
