@@ -167,6 +167,7 @@ public:
 
     CTxLockRequest() : tx(MakeTransactionRef()) {}
     CTxLockRequest(const CTransaction& _tx) : tx(MakeTransactionRef(_tx)) {};
+    CTxLockRequest(const CTransactionRef& _tx) : tx(_tx) {};
 
     ADD_SERIALIZE_METHODS;
 
