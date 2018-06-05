@@ -60,16 +60,19 @@ class InstantSendTest(BitcoinTestFramework):
                                                      txid, collateral_vout))
         f.close()
         stop_node(self.nodes[0], 0)
-        self.nodes[0] = start_node(0, self.options.tmpdir, ["-debug=net"])
+        self.nodes[0] = start_node(0, self.options.tmpdir, ["-debug"])
         for i in range(1, idx):
             connect_nodes(self.nodes[i], 0)
 
         self.nodes.append(start_node(idx, self.options.tmpdir,
-                                     ["-debug=net", '-masternode=1',
+                                     ["-debug", '-masternode=1',
                                       '-masternodeprivkey=%s' % key]))
         for i in range(0, idx):
             connect_nodes(self.nodes[i], idx)
 
+    def sentinel(self):
+        for i in range(1, self.mn_count + 1):
+            self.nodes[i].sentinelping("1.1.0")
 
     def setup_network(self):
         self.nodes = []
@@ -89,10 +92,12 @@ class InstantSendTest(BitcoinTestFramework):
         self.nodes[0].generate(1)
         # sync nodes
         self.sync_all()
+        self.nodes[0].masternode("start-all")
+        sync_masternodes(self.nodes)
 
     def run_test(self):
-        print(self.nodes[0].masternode("start-all"))
-        sync_masternodes(self.nodes)
+        self.sentinel()
+        print(self.nodes[1].masternode("status"))
 
 
 if __name__ == '__main__':
