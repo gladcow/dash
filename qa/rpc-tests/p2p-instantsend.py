@@ -65,7 +65,8 @@ class InstantSendTest(BitcoinTestFramework):
             connect_nodes(self.nodes[i], 0)
 
         self.nodes.append(start_node(idx, self.options.tmpdir,
-                                     ["-debug", '-masternode=1',
+                                     ['-debug', '-externalip=127.0.0.1',
+                                      '-masternode=1',
                                       '-masternodeprivkey=%s' % key]))
         for i in range(0, idx):
             connect_nodes(self.nodes[i], idx)
