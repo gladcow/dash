@@ -6,21 +6,13 @@
 from test_framework.mininode import *
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import *
-from test_framework.blocktools import create_block, create_coinbase
-import time
+from base64 import *
 
 '''
 InstantSendTest -- test InstantSend functionality (prevent doublespend for unconfirmed transactions)
 '''
 
 MASTERNODE_COLLATERAL = 1000
-
-
-class MasternodeData:
-    def __init__(self, key, collateral_txid, alias):
-        self.key = key
-        self.collateral_txid = collateral_txid
-        self.alias = alias
 
 
 class InstantSendTest(BitcoinTestFramework):
@@ -31,11 +23,16 @@ class InstantSendTest(BitcoinTestFramework):
         self.collaterals = []
         self.setup_clean_chain = True
         self.is_network_split = False
+        # get sporkkey from src/chainparams.cpp, RegTestParams()
+        self.sporkkey = 'cP4EKFyJsHT39LDqgdcB43Y3YXjNyjb5Fuas1GQSeAtjnZWmZEQK'
+        self.sporkaddr = 'yj949n1UH6fDhw6HtVE5VMj2iSTaSWBMcW'
 
     def create_simple_node(self):
         idx = len(self.nodes)
         self.nodes.append(start_node(idx, self.options.tmpdir,
-                                     ["-debug=net"]))
+                                     ["-debug",
+                                      "-sporkaddr=%s" % self.sporkaddr,
+                                      "-sporkkey=%s" % self.sporkkey]))
         for i in range(0, idx):
             connect_nodes(self.nodes[i], idx)
 
@@ -60,14 +57,19 @@ class InstantSendTest(BitcoinTestFramework):
                                                      txid, collateral_vout))
         f.close()
         stop_node(self.nodes[0], 0)
-        self.nodes[0] = start_node(0, self.options.tmpdir, ["-debug"])
+        self.nodes[0] = start_node(0, self.options.tmpdir, ["-debug",
+                                                            "-sporkaddr=%s" % self.sporkaddr,
+                                                            "-sporkkey=%s" % self.sporkkey])
         for i in range(1, idx):
             connect_nodes(self.nodes[i], 0)
 
         self.nodes.append(start_node(idx, self.options.tmpdir,
-                                     ['-debug', '-externalip=127.0.0.1',
+                                     ['-debug=masternode', '-externalip=127.0.0.1',
                                       '-masternode=1',
-                                      '-masternodeprivkey=%s' % key]))
+                                      '-masternodeprivkey=%s' % key,
+                                      "-sporkaddr=%s" % self.sporkaddr,
+                                      "-sporkkey=%s" % self.sporkkey
+                                      ]))
         for i in range(0, idx):
             connect_nodes(self.nodes[i], idx)
 
@@ -78,7 +80,9 @@ class InstantSendTest(BitcoinTestFramework):
     def setup_network(self):
         self.nodes = []
         # create faucet node for collateral and transactions
-        self.nodes.append(start_node(0, self.options.tmpdir, ["-debug=net"]))
+        self.nodes.append(start_node(0, self.options.tmpdir, ["-debug",
+                                                            "-sporkaddr=%s" % self.sporkaddr,
+                                                            "-sporkkey=%s" % self.sporkkey]))
         required_balance = MASTERNODE_COLLATERAL * self.mn_count + 1
         while self.nodes[0].getbalance() < required_balance:
             set_mocktime(get_mocktime() + 1)
@@ -89,16 +93,27 @@ class InstantSendTest(BitcoinTestFramework):
         # create simple nodes
         for i in range(0, self.node_count - self.mn_count - 1):
             self.create_simple_node()
+        # enable InstandSend
+        for i in range(0, self.num_nodes):
+            self.nodes[i].spork('SPORK_2_INSTANTSEND_ENABLED', 10000)
         # workaround for mempool sync problems
+        set_mocktime(get_mocktime() + 1)
         self.nodes[0].generate(1)
         # sync nodes
         self.sync_all()
-        self.nodes[0].masternode("start-all")
+        set_mocktime(get_mocktime() + 1)
         sync_masternodes(self.nodes)
+        print(self.nodes[0].masternode("start-all"))
+        sync_masternodes(self.nodes)
+        self.sentinel()
 
     def run_test(self):
-        self.sentinel()
-        print(self.nodes[1].masternode("status"))
+        print(self.nodes[0].masternode("list"))
+        for i in range(1, self.mn_count + 1):
+            print(self.nodes[i].masternode("status"))
+
+        for i in range(0, self.num_nodes):
+            print(self.nodes[i].spork('show'))
 
 
 if __name__ == '__main__':
