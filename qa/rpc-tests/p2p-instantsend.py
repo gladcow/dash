@@ -18,8 +18,8 @@ MASTERNODE_COLLATERAL = 1000
 class InstantSendTest(BitcoinTestFramework):
     def __init__(self):
         super().__init__()
-        self.mn_count = 2
-        self.node_count = self.mn_count + 2
+        self.mn_count = 3
+        self.num_nodes = self.mn_count + 2
         self.collaterals = []
         self.setup_clean_chain = True
         self.is_network_split = False
@@ -91,7 +91,7 @@ class InstantSendTest(BitcoinTestFramework):
         for i in range(0, self.mn_count):
             self.create_masternode()
         # create simple nodes
-        for i in range(0, self.node_count - self.mn_count - 1):
+        for i in range(0, self.num_nodes - self.mn_count - 1):
             self.create_simple_node()
         # enable InstandSend
         for i in range(0, self.num_nodes):
