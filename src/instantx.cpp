@@ -915,6 +915,11 @@ std::string CInstantSend::ToString() const
     return strprintf("Lock Candidates: %llu, Votes %llu", mapTxLockCandidates.size(), mapTxLockVotes.size());
 }
 
+bool CInstantSend::IsTrxSimple(const CTransaction &tx)
+{
+    return (tx.vin.size() <= MAX_INPUTS_FOR_AUTO_IX);
+}
+
 //
 // CTxLockRequest
 //

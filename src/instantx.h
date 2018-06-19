@@ -34,6 +34,9 @@ static const int INSTANTSEND_LOCK_TIMEOUT_SECONDS   = 15;
 /// For how long we are going to keep invalid votes and votes for failed lock attempts,
 /// must be greater than INSTANTSEND_LOCK_TIMEOUT_SECONDS
 static const int INSTANTSEND_FAILED_TIMEOUT_SECONDS = 60;
+/// If transaction has less or equal inputs than MAX_INPUTS_FOR_AUTO_IX,
+/// it will be automatically locked
+static const int MAX_INPUTS_FOR_AUTO_IX = 4;
 
 extern bool fEnableInstantSend;
 extern int nCompleteTXLocks;
@@ -148,6 +151,9 @@ public:
     std::string ToString() const;
 
     void DoMaintenance() { CheckAndRemove(); }
+
+    // checks if trx is "simple" to lock it automatically
+    static bool IsTrxSimple(const CTransaction& tx);
 };
 
 /**
