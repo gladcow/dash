@@ -2017,6 +2017,13 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
                 instantsend.AcceptLockRequest(txLockRequest);
                 instantsend.Vote(tx.GetHash(), connman);
             }
+            else
+            {
+                if(CInstantSend::IsTrxSimple(tx)) {
+                    if(!instantsend.ProcessTxLockRequest(tx, connman))
+                        LogPrint("instantsend", "Auto instantsend lock -- failed %s\n", tx.GetHash().ToString());
+                }
+            }
 
             mempool.check(pcoinsTip);
             connman.RelayTransaction(tx);
