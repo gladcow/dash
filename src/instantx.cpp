@@ -238,9 +238,9 @@ void CInstantSend::Vote(CTxLockCandidate& txLockCandidate, CConnman& connman)
         int nLockInputHeight = nPrevoutHeight + Params().GetConsensus().nInstantSendConfirmationsRequired - 2;
 
         int nRank;
-        int nMinRequiredProtocol = std::max(MIN_INSTANTSEND_PROTO_VERSION, mnpayments.GetMinMasternodePaymentsProto());
+        int nMinRequiredProtocol = std::max(MIN_INSTANTSEND_WITHOUT_FEE_PROTO_VERSION, mnpayments.GetMinMasternodePaymentsProto());
         if(!mnodeman.GetMasternodeRank(activeMasternodeInfo.outpoint, nRank, nLockInputHeight, nMinRequiredProtocol)) {
-            LogPrint("instantsend", "CInstantSend::Vote -- Can't calculate rank for masternode %s\n", activeMasternodeInfo.outpoint.ToStringShort());
+            LogPrint("instantsend", "CInstantSend::Vote -- Can't calculate rank for masternode %s\n", activeMasternode.outpoint.ToStringShort());
             continue;
         }
 
