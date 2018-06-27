@@ -1980,7 +1980,7 @@ bool CWalletTx::RelayWalletTransaction(CConnman* connman, const std::string& str
             LogPrintf("Relaying wtx %s\n", hash.ToString());
 
             if ((strCommand == NetMsgType::TXLOCKREQUEST) ||
-                (CInstantSend::IsTrxSimple(*this))) {
+                (CInstantSend::IsTrxSimple(*this) && CInstantSend::CanAutoLock())) {
                 if (instantsend.ProcessTxLockRequest((CTxLockRequest)*this, *connman)) {
                     instantsend.AcceptLockRequest((CTxLockRequest)*this);
                 } else {

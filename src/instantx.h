@@ -39,6 +39,9 @@ static const int INSTANTSEND_FAILED_TIMEOUT_SECONDS = 60;
 /// If transaction has less or equal inputs than MAX_INPUTS_FOR_AUTO_IX,
 /// it will be automatically locked
 static const int MAX_INPUTS_FOR_AUTO_IX = 4;
+/// Automatic locks of "simple" transactions are only allowed
+/// when mempool usage is lower than this threshold
+static const double AUTO_IX_MEMPOOL_THRESHOLD = 0.1;
 
 extern bool fEnableInstantSend;
 extern int nCompleteTXLocks;
@@ -154,6 +157,8 @@ public:
 
     void DoMaintenance() { CheckAndRemove(); }
 
+    // checks if we can automatically lock "simple" transactions
+    static bool CanAutoLock();
     // checks if trx is "simple" to lock it automatically
     static bool IsTrxSimple(const CTransaction& tx);
 };
