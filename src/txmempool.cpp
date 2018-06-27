@@ -1269,6 +1269,11 @@ size_t CTxMemPool::DynamicMemoryUsage() const {
     return memusage::MallocUsage(sizeof(CTxMemPoolEntry) + 15 * sizeof(void*)) * mapTx.size() + memusage::DynamicUsage(mapNextTx) + memusage::DynamicUsage(mapDeltas) + memusage::DynamicUsage(mapLinks) + memusage::DynamicUsage(vTxHashes) + cachedInnerUsage;
 }
 
+double CTxMemPool::UsedMemoryShare() const
+{
+    return DynamicMemoryUsage() / GetArg("-maxmempool", DEFAULT_MAX_MEMPOOL_SIZE);
+}
+
 void CTxMemPool::RemoveStaged(setEntries &stage, bool updateDescendants, MemPoolRemovalReason reason) {
     AssertLockHeld(cs);
     UpdateForRemoveFromMempool(stage, updateDescendants);
