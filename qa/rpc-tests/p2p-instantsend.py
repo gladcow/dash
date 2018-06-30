@@ -15,12 +15,19 @@ InstantSendTest -- test InstantSend functionality (prevent doublespend for uncon
 MASTERNODE_COLLATERAL = 1000
 
 
+class MasternodeInfo:
+    def __init__(self, key, collateral_id, collateral_out):
+        self.key = key
+        self.collateral_id = collateral_id
+        self.collateral_out = collateral_out
+
+
 class InstantSendTest(BitcoinTestFramework):
     def __init__(self):
         super().__init__()
         self.mn_count = 10
         self.num_nodes = self.mn_count + 4
-        self.collaterals = []
+        self.mninfo = []
         self.setup_clean_chain = True
         self.is_network_split = False
         # get sporkkey from src/chainparams.cpp, RegTestParams()
@@ -43,39 +50,40 @@ class InstantSendTest(BitcoinTestFramework):
     def get_mnconf_file(self):
         return os.path.join(self.options.tmpdir, "node0/regtest/masternode.conf")
 
-    def create_masternode(self):
-        # this is masternode index
-        idx = len(self.nodes)
-        key = self.nodes[0].masternode("genkey")
-        address = self.nodes[0].getnewaddress()
-        txid = self.nodes[0].sendtoaddress(address, MASTERNODE_COLLATERAL)
-        txrow = self.nodes[0].getrawtransaction(txid, True)
-        collateral_vout = 0
-        for vout_idx in range(0, len(txrow["vout"])):
-            vout = txrow["vout"][vout_idx]
-            if vout["value"] == MASTERNODE_COLLATERAL:
-                collateral_vout = vout_idx
+    def prepare_masternodes(self):
+        for idx in range(0, self.mn_count):
+            key = self.nodes[0].masternode("genkey")
+            address = self.nodes[0].getnewaddress()
+            txid = self.nodes[0].sendtoaddress(address, MASTERNODE_COLLATERAL)
+            txrow = self.nodes[0].getrawtransaction(txid, True)
+            collateral_vout = 0
+            for vout_idx in range(0, len(txrow["vout"])):
+                vout = txrow["vout"][vout_idx]
+                if vout["value"] == MASTERNODE_COLLATERAL:
+                    collateral_vout = vout_idx
+            self.mninfo.append(MasternodeInfo(key, txid, collateral_vout))
+
+    def write_mn_config(self):
         conf = self.get_mnconf_file()
         f = open(conf, 'a')
-        f.write("mn%d 127.0.0.1:%d %s %s %d\n" % (idx, p2p_port(idx), key,
-                                                     txid, collateral_vout))
+        for idx in range(0, self.mn_count):
+            f.write("mn%d 127.0.0.1:%d %s %s %d\n" % (idx + 1, p2p_port(idx + 1),
+                                                      self.mninfo[idx].key,
+                                                      self.mninfo[idx].collateral_id,
+                                                      self.mninfo[idx].collateral_out))
         f.close()
-        stop_node(self.nodes[0], 0)
-        self.nodes[0] = start_node(0, self.options.tmpdir, ["-debug",
-                                                            "-sporkaddr=%s" % self.sporkaddr,
-                                                            "-sporkkey=%s" % self.sporkkey])
-        for i in range(1, idx):
-            connect_nodes(self.nodes[i], 0)
 
-        self.nodes.append(start_node(idx, self.options.tmpdir,
-                                     ['-debug=masternode', '-externalip=127.0.0.1',
-                                      '-masternode=1',
-                                      '-masternodeprivkey=%s' % key,
-                                      "-sporkaddr=%s" % self.sporkaddr,
-                                      "-sporkkey=%s" % self.sporkkey
-                                      ]))
-        for i in range(0, idx):
-            connect_nodes(self.nodes[i], idx)
+    def create_masternodes(self):
+        for idx in range(0, self.mn_count):
+            self.nodes.append(start_node(idx + 1, self.options.tmpdir,
+                                         ['-debug=masternode', '-externalip=127.0.0.1',
+                                          '-masternode=1',
+                                          '-masternodeprivkey=%s' % self.mninfo[idx].key,
+                                          "-sporkaddr=%s" % self.sporkaddr,
+                                          "-sporkkey=%s" % self.sporkkey
+                                          ]))
+            for i in range(0, idx + 1):
+                connect_nodes(self.nodes[i], idx + 1)
 
     def sentinel(self):
         for i in range(1, self.mn_count + 1):
@@ -92,8 +100,13 @@ class InstantSendTest(BitcoinTestFramework):
             set_mocktime(get_mocktime() + 1)
             self.nodes[0].generate(1)
         # create masternodes
-        for i in range(0, self.mn_count):
-            self.create_masternode()
+        self.prepare_masternodes()
+        self.write_mn_config()
+        stop_node(self.nodes[0], 0)
+        self.nodes[0] = start_node(0, self.options.tmpdir, ["-debug",
+                                                            "-sporkaddr=%s" % self.sporkaddr,
+                                                            "-sporkkey=%s" % self.sporkkey])
+        self.create_masternodes()
         # create connected simple nodes
         for i in range(0, self.num_nodes - self.mn_count - 1):
             self.create_simple_node()
@@ -111,7 +124,9 @@ class InstantSendTest(BitcoinTestFramework):
         self.sync_all()
         set_mocktime(get_mocktime() + 1)
         sync_masternodes(self.nodes)
-        self.nodes[0].masternode("start-all")
+        for i in range(1, self.mn_count + 1):
+            res = self.nodes[0].masternode("start-alias", "mn%d" % i)
+            assert(res["result"] == 'successful')
         sync_masternodes(self.nodes)
         #self.sentinel()
         mn_info = self.nodes[0].masternodelist("status")
