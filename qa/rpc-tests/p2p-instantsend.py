@@ -61,6 +61,8 @@ class InstantSendTest(BitcoinTestFramework):
                 vout = txrow["vout"][vout_idx]
                 if vout["value"] == MASTERNODE_COLLATERAL:
                     collateral_vout = vout_idx
+            self.nodes[0].lockunspent(False,
+                                      [{"txid": txid, "vout": collateral_vout}])
             self.mninfo.append(MasternodeInfo(key, txid, collateral_vout))
 
     def write_mn_config(self):
