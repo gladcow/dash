@@ -112,9 +112,6 @@ class InstantSendTest(BitcoinTestFramework):
         # create connected simple nodes
         for i in range(0, self.num_nodes - self.mn_count - 1):
             self.create_simple_node()
-        # enable InstandSend
-        for i in range(0, self.num_nodes):
-            self.nodes[i].spork('SPORK_2_INSTANTSEND_ENABLED', 10000)
         # feed the sender with some balance
         sender_addr = self.nodes[self.sender_idx].getnewaddress()
         self.nodes[0].sendtoaddress(sender_addr, 1)
@@ -186,7 +183,6 @@ class InstantSendTest(BitcoinTestFramework):
                                      ["-debug",
                                       "-sporkaddr=%s" % self.sporkaddr,
                                       "-sporkkey=%s" % self.sporkkey])
-        self.nodes[self.isolated_idx].spork('SPORK_2_INSTANTSEND_ENABLED', 10000)
         # send doublespend transaction to isolated node
         self.nodes[self.isolated_idx].sendrawtransaction(dblspnd_tx['hex'])
         # generate block on isolated node with doublespend transaction
