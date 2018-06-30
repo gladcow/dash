@@ -182,7 +182,7 @@ class InstantSendTest(BitcoinTestFramework):
         # check doublespend block is rejected by other nodes
         timeout = 10
         for i in range(0, self.isolated_idx):
-            res = self.nodes[0].waitforblock(wrong_block, timeout)
+            res = self.nodes[i].waitforblock(wrong_block, timeout)
             assert (res['hash'] != wrong_block)
             # wait for long time only for first node
             timeout = 1
