@@ -30,9 +30,6 @@ class InstantSendTest(BitcoinTestFramework):
         self.mninfo = []
         self.setup_clean_chain = True
         self.is_network_split = False
-        # get sporkkey from src/chainparams.cpp, RegTestParams()
-        self.sporkkey = 'cP4EKFyJsHT39LDqgdcB43Y3YXjNyjb5Fuas1GQSeAtjnZWmZEQK'
-        self.sporkaddr = 'yj949n1UH6fDhw6HtVE5VMj2iSTaSWBMcW'
         # set sender,  receiver,  isolated nodes
         self.isolated_idx = self.num_nodes - 1
         self.receiver_idx = self.num_nodes - 2
@@ -41,9 +38,7 @@ class InstantSendTest(BitcoinTestFramework):
     def create_simple_node(self):
         idx = len(self.nodes)
         self.nodes.append(start_node(idx, self.options.tmpdir,
-                                     ["-debug",
-                                      "-sporkaddr=%s" % self.sporkaddr,
-                                      "-sporkkey=%s" % self.sporkkey]))
+                                     ["-debug"]))
         for i in range(0, idx):
             connect_nodes(self.nodes[i], idx)
 
@@ -80,9 +75,7 @@ class InstantSendTest(BitcoinTestFramework):
             self.nodes.append(start_node(idx + 1, self.options.tmpdir,
                                          ['-debug=masternode', '-externalip=127.0.0.1',
                                           '-masternode=1',
-                                          '-masternodeprivkey=%s' % self.mninfo[idx].key,
-                                          "-sporkaddr=%s" % self.sporkaddr,
-                                          "-sporkkey=%s" % self.sporkkey
+                                          '-masternodeprivkey=%s' % self.mninfo[idx].key
                                           ]))
             for i in range(0, idx + 1):
                 connect_nodes(self.nodes[i], idx + 1)
@@ -94,9 +87,7 @@ class InstantSendTest(BitcoinTestFramework):
     def setup_network(self):
         self.nodes = []
         # create faucet node for collateral and transactions
-        self.nodes.append(start_node(0, self.options.tmpdir, ["-debug",
-                                                            "-sporkaddr=%s" % self.sporkaddr,
-                                                            "-sporkkey=%s" % self.sporkkey]))
+        self.nodes.append(start_node(0, self.options.tmpdir, ["-debug"]))
         required_balance = MASTERNODE_COLLATERAL * self.mn_count + 1
         while self.nodes[0].getbalance() < required_balance:
             set_mocktime(get_mocktime() + 1)
@@ -105,9 +96,7 @@ class InstantSendTest(BitcoinTestFramework):
         self.prepare_masternodes()
         self.write_mn_config()
         stop_node(self.nodes[0], 0)
-        self.nodes[0] = start_node(0, self.options.tmpdir, ["-debug",
-                                                            "-sporkaddr=%s" % self.sporkaddr,
-                                                            "-sporkkey=%s" % self.sporkkey])
+        self.nodes[0] = start_node(0, self.options.tmpdir, ["-debug"])
         self.create_masternodes()
         # create connected simple nodes
         for i in range(0, self.num_nodes - self.mn_count - 1):
@@ -180,9 +169,7 @@ class InstantSendTest(BitcoinTestFramework):
         # start last node
         self.nodes[self.isolated_idx] = start_node(self.isolated_idx,
                                                    self.options.tmpdir,
-                                     ["-debug",
-                                      "-sporkaddr=%s" % self.sporkaddr,
-                                      "-sporkkey=%s" % self.sporkkey])
+                                                   ["-debug"])
         # send doublespend transaction to isolated node
         self.nodes[self.isolated_idx].sendrawtransaction(dblspnd_tx['hex'])
         # generate block on isolated node with doublespend transaction
