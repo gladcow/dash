@@ -917,6 +917,8 @@ std::string CInstantSend::ToString() const
 
 bool CInstantSend::CanAutoLock()
 {
+    if(!sporkManager.IsSporkActive(SPORK_16_INSTANTSEND_AUTOLOCKS))
+        return false;
     return (mempool.UsedMemoryShare() < AUTO_IX_MEMPOOL_THRESHOLD);
 }
 
