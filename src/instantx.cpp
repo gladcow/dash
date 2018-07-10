@@ -35,6 +35,8 @@ extern CTxMemPool mempool;
 bool fEnableInstantSend = true;
 int nCompleteTXLocks;
 
+std::atomic<bool> CInstantSend::isAutoLockBip9Active{false};
+
 CInstantSend instantsend;
 const std::string CInstantSend::SERIALIZATION_VERSION_STRING = "CInstantSend-Version-1";
 
@@ -917,6 +919,8 @@ std::string CInstantSend::ToString() const
 
 bool CInstantSend::CanAutoLock()
 {
+    if(!isAutoLockBip9Active)
+        return false;
     if(!sporkManager.IsSporkActive(SPORK_16_INSTANTSEND_AUTOLOCKS))
         return false;
     return (mempool.UsedMemoryShare() < AUTO_IX_MEMPOOL_THRESHOLD);

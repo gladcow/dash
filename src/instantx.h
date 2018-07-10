@@ -161,6 +161,9 @@ public:
     static bool CanAutoLock();
     // checks if trx is "simple" to lock it automatically
     static bool IsTrxSimple(const CTransaction& tx);
+
+    // flag of the AutoLock Bip9 activation
+    static std::atomic<bool> isAutoLockBip9Active;
 };
 
 /**
