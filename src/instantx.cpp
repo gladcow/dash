@@ -36,6 +36,7 @@ bool fEnableInstantSend = true;
 int nCompleteTXLocks;
 
 std::atomic<bool> CInstantSend::isAutoLockBip9Active{false};
+const double CInstantSend::AUTO_IX_MEMPOOL_THRESHOLD = 0.1;
 
 CInstantSend instantsend;
 const std::string CInstantSend::SERIALIZATION_VERSION_STRING = "CInstantSend-Version-1";

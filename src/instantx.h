@@ -36,9 +36,6 @@ static const int INSTANTSEND_LOCK_TIMEOUT_SECONDS   = 15;
 /// For how long we are going to keep invalid votes and votes for failed lock attempts,
 /// must be greater than INSTANTSEND_LOCK_TIMEOUT_SECONDS
 static const int INSTANTSEND_FAILED_TIMEOUT_SECONDS = 60;
-/// Automatic locks of "simple" transactions are only allowed
-/// when mempool usage is lower than this threshold
-static const double AUTO_IX_MEMPOOL_THRESHOLD = 0.1;
 
 extern bool fEnableInstantSend;
 extern int nCompleteTXLocks;
@@ -50,6 +47,9 @@ class CInstantSend
 {
 private:
     static const std::string SERIALIZATION_VERSION_STRING;
+    /// Automatic locks of "simple" transactions are only allowed
+    /// when mempool usage is lower than this threshold
+    static const double AUTO_IX_MEMPOOL_THRESHOLD;
 
     // Keep track of current block height
     int nCachedBlockHeight;
