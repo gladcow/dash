@@ -1005,36 +1005,6 @@ UniValue sendrawtransaction(const JSONRPCRequest& request)
     return hashTx.GetHex();
 }
 
-UniValue locktransaction(const JSONRPCRequest& request)
-{
-    if (request.fHelp || request.params.size() != 1)
-        throw std::runtime_error(
-            "locktransaction \"transactionid\"\n"
-            "\nSets InstantSend lock on given transaction on the receiver side\n"
-            "\nArguments:\n"
-            "1. \"txid\"  (string) The transaction id.\n"
-            "\nResult:\n"
-            "success      (bool) Was it successful.\n"
-            "\nExample:\n"
-            + HelpExampleCli("locktransaction", "\"6d4247d063f526e9a6259bb46427b361148795f5378a472793cb6e7ec4349632\"")
-        );
-
-    LOCK(cs_main);
-
-    uint256 hash = ParseHashV(request.params[0], "parameter 1");
-
-    CTransactionRef tx;
-    uint256 hashBlock;
-    if (!GetTransaction(hash, tx, Params().GetConsensus(), hashBlock, true))
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, std::string(fTxIndex ? "No such mempool or blockchain transaction"
-            : "No such mempool transaction. Use -txindex to enable blockchain transaction queries"));
-
-    if(!g_connman)
-        throw JSONRPCError(RPC_CLIENT_P2P_DISABLED, "Error: Peer-to-peer functionality missing or disabled");
-
-    return instantsend.ProcessTxLockRequest(tx, *g_connman);
-}
-
 static const CRPCCommand commands[] =
 { //  category              name                      actor (function)         okSafeMode
   //  --------------------- ------------------------  -----------------------  ----------
@@ -1044,7 +1014,6 @@ static const CRPCCommand commands[] =
     { "rawtransactions",    "decodescript",           &decodescript,           true,  {"hexstring"} },
     { "rawtransactions",    "sendrawtransaction",     &sendrawtransaction,     false, {"hexstring","allowhighfees","instantsend","bypasslimits"} },
     { "rawtransactions",    "signrawtransaction",     &signrawtransaction,     false, {"hexstring","prevtxs","privkeys","sighashtype"} }, /* uses wallet if enabled */
-    { "rawtransactions",    "locktransaction",        &locktransaction,        false, {"txid"} },
 
     { "blockchain",         "gettxoutproof",          &gettxoutproof,          true,  {"txids", "blockhash"} },
     { "blockchain",         "verifytxoutproof",       &verifytxoutproof,       true,  {"proof"} },
