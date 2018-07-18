@@ -36,9 +36,6 @@ static const int INSTANTSEND_LOCK_TIMEOUT_SECONDS   = 15;
 /// For how long we are going to keep invalid votes and votes for failed lock attempts,
 /// must be greater than INSTANTSEND_LOCK_TIMEOUT_SECONDS
 static const int INSTANTSEND_FAILED_TIMEOUT_SECONDS = 60;
-/// If transaction has less or equal inputs than MAX_INPUTS_FOR_AUTO_IX,
-/// it will be automatically locked
-static const int MAX_INPUTS_FOR_AUTO_IX = 4;
 /// Automatic locks of "simple" transactions are only allowed
 /// when mempool usage is lower than this threshold
 static const double AUTO_IX_MEMPOOL_THRESHOLD = 0.1;
@@ -171,6 +168,9 @@ class CTxLockRequest
 {
 private:
     static const CAmount MIN_FEE            = 0.0001 * COIN;
+    /// If transaction has less or equal inputs than MAX_INPUTS_FOR_AUTO_IX,
+    /// it will be automatically locked
+    static const int MAX_INPUTS_FOR_AUTO_IX = 4;
 
 public:
     /// Warn for a large number of inputs to an IS tx - fees could be substantial
