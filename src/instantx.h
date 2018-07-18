@@ -159,8 +159,6 @@ public:
 
     // checks if we can automatically lock "simple" transactions
     static bool CanAutoLock();
-    // checks if trx is "simple" to lock it automatically
-    static bool IsTrxSimple(const CTransaction& tx);
 
     // flag of the AutoLock Bip9 activation
     static std::atomic<bool> isAutoLockBip9Active;
@@ -195,6 +193,9 @@ public:
     bool IsValid() const;
     CAmount GetMinFee() const;
     int GetMaxSignatures() const;
+
+    // checks if related transaction is "simple" to lock it automatically
+    bool IsSimple() const;
 
     const uint256 &GetHash() const {
         return tx->GetHash();

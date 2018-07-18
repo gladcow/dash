@@ -926,11 +926,6 @@ bool CInstantSend::CanAutoLock()
     return (mempool.UsedMemoryShare() < AUTO_IX_MEMPOOL_THRESHOLD);
 }
 
-bool CInstantSend::IsTrxSimple(const CTransaction &tx)
-{
-    return (tx.vin.size() <= MAX_INPUTS_FOR_AUTO_IX);
-}
-
 //
 // CTxLockRequest
 //
@@ -992,7 +987,7 @@ bool CTxLockRequest::IsValid() const
 
 CAmount CTxLockRequest::GetMinFee() const
 {
-    if(CInstantSend::IsTrxSimple(*tx))
+    if(IsSimple())
         return CAmount();
     CAmount nMinFee = MIN_FEE;
     return std::max(nMinFee, CAmount(tx->vin.size() * nMinFee));
@@ -1001,6 +996,11 @@ CAmount CTxLockRequest::GetMinFee() const
 int CTxLockRequest::GetMaxSignatures() const
 {
     return tx->vin.size() * COutPointLock::SIGNATURES_TOTAL;
+}
+
+bool CTxLockRequest::IsSimple() const
+{
+    return (tx->vin.size() <= MAX_INPUTS_FOR_AUTO_IX);
 }
 
 //
