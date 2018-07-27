@@ -25,22 +25,4 @@ When a wallet InstantSend transaction is successfully locked a shell command pro
 
 #### RPC
 
-Details pertaining to an observed "Transaction Lock" can also be retrieved through RPC, it’s important however to understand the underlying mechanism.
-
-There is a field named `instantlock` (that is present in commands such as `listsinceblock`). The value in this field indicates whether a given transaction is locked via InstantSend.
-
-**Examples**
-
-1. `listsinceblock`
-    * InstantSend transaction just occurred:
-        * confirmations: 0
-        * instantlock: true
-    * InstantSend transaction received one confirmation from blockchain:
-        * confirmations: 1
-        * instantlock: true
-    * non-InstantSend transaction just occurred:
-        * confirmations: 0
-        * instantlock: false
-    * non-InstantSend transaction received one confirmation from blockchain:
-        * confirmations: 1
-        * instantlock: false
+Details pertaining to an observed "Transaction Lock" can also be retrieved through RPC. There is a boolean field named `instantlock` which indicates whether a given transaction is locked via InstantSend. This field is present in the output of some wallet RPC commands e.g. `listsinceblock`, `gettransaction` etc. as well as in the output of some mempool RPC commands e.g. `getmempoolentry` and a couple of others like `getrawmempool` (for `verbose=true` only).
