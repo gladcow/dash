@@ -1271,7 +1271,7 @@ size_t CTxMemPool::DynamicMemoryUsage() const {
 
 double CTxMemPool::UsedMemoryShare() const
 {
-    return DynamicMemoryUsage() / GetArg("-maxmempool", DEFAULT_MAX_MEMPOOL_SIZE);
+    return DynamicMemoryUsage() / (GetArg("-maxmempool", DEFAULT_MAX_MEMPOOL_SIZE) * 1000000);
 }
 
 void CTxMemPool::RemoveStaged(setEntries &stage, bool updateDescendants, MemPoolRemovalReason reason) {
