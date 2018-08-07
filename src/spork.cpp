@@ -28,6 +28,13 @@ std::map<int, int64_t> mapSporkDefaults = {
     {SPORK_14_REQUIRE_SENTINEL_FLAG,         4070908800ULL}, // OFF
 };
 
+void CSporkManager::Clear()
+{
+    mapSporksActive.clear();
+    sporkPubKeyID.SetNull();
+    sporkPrivKey = CKey();
+}
+
 void CSporkManager::ProcessSpork(CNode* pfrom, const std::string& strCommand, CDataStream& vRecv, CConnman& connman)
 {
     if(fLiteMode) return; // disable all Dash specific functionality
@@ -234,6 +241,13 @@ bool CSporkManager::SetPrivKey(const std::string& strPrivKey)
         return false;
     }
 }
+
+std::string CSporkManager::ToString() const
+{
+    LOCK(cs);
+    return strprintf("Sporks: %llu", mapSporksActive.size());
+}
+
 
 uint256 CSporkMessage::GetHash() const
 {
