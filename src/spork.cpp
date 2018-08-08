@@ -15,7 +15,6 @@
 
 CSporkManager sporkManager;
 
-std::map<uint256, CSporkMessage> mapSporks;
 std::map<int, int64_t> mapSporkDefaults = {
     {SPORK_2_INSTANTSEND_ENABLED,            0},             // ON
     {SPORK_3_INSTANTSEND_BLOCK_FILTERING,    0},             // ON
@@ -30,6 +29,7 @@ std::map<int, int64_t> mapSporkDefaults = {
 
 void CSporkManager::Clear()
 {
+    LOCK(cs);
     mapSporksActive.clear();
     sporkPubKeyID.SetNull();
     sporkPrivKey = CKey();
@@ -76,7 +76,7 @@ void CSporkManager::ProcessSpork(CNode* pfrom, const std::string& strCommand, CD
 
         {
             LOCK(cs); // make sure to not lock this together with cs_main
-            mapSporks[hash] = spork;
+            mapSporksByHash[hash] = spork;
             mapSporksActive[spork.nSporkID] = spork;
         }
         spork.Relay(connman);
@@ -129,7 +129,7 @@ bool CSporkManager::UpdateSpork(int nSporkID, int64_t nValue, CConnman& connman)
     if(spork.Sign(sporkPrivKey)) {
         spork.Relay(connman);
         LOCK(cs);
-        mapSporks[spork.GetHash()] = spork;
+        mapSporksByHash[spork.GetHash()] = spork;
         mapSporksActive[nSporkID] = spork;
         return true;
     }
@@ -202,6 +202,12 @@ std::string CSporkManager::GetSporkNameByID(int nSporkID)
             LogPrint("spork", "CSporkManager::GetSporkNameByID -- Unknown Spork ID %d\n", nSporkID);
             return "Unknown";
     }
+}
+
+bool CSporkManager::GetSporkByHash(const uint256& hash, CSporkMessage &sporkRet)
+{
+    const auto it = mapSporksByHash.find(hash);
+    return it != mapSporksByHash.end();
 }
 
 bool CSporkManager::SetSporkAddress(const std::string& strAddress) {

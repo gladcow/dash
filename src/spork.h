@@ -31,7 +31,6 @@ static const int SPORK_START                                            = SPORK_
 static const int SPORK_END                                              = SPORK_14_REQUIRE_SENTINEL_FLAG;
 
 extern std::map<int, int64_t> mapSporkDefaults;
-extern std::map<uint256, CSporkMessage> mapSporks;
 extern CSporkManager sporkManager;
 
 //
@@ -102,6 +101,7 @@ public:
     template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action) {
         READWRITE(sporkPubKeyID);
+        READWRITE(mapSporksByHash);
         READWRITE(mapSporksActive);
         // we don't serialize private key to prevent its leakage
     }
@@ -118,6 +118,8 @@ public:
     int64_t GetSporkValue(int nSporkID);
     int GetSporkIDByName(const std::string& strName);
     std::string GetSporkNameByID(int nSporkID);
+
+    bool GetSporkByHash(const uint256& hash, CSporkMessage &sporkRet);
 
     bool SetSporkAddress(const std::string& strAddress);
     bool SetPrivKey(const std::string& strPrivKey);
