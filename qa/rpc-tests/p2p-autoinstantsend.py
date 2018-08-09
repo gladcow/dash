@@ -242,6 +242,7 @@ class AutoInstantSendTest(BitcoinTestFramework):
                 break
             if time() > start + 10:
                 break
+            sleep(0.1)
         return locked
 
     # sends regular IX with high fee and may inputs (not-simple transaction)
