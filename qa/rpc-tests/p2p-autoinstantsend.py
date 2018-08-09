@@ -175,8 +175,8 @@ class AutoInstantSendTest(BitcoinTestFramework):
         assert(self.get_autoix_bip9_status() == 'active')
 
     def get_autoix_spork_state(self):
-        info = self.nodes[0].spork('show')
-        return info['SPORK_16_INSTANTSEND_AUTOLOCKS'] < time()
+        info = self.nodes[0].spork('active')
+        return info['SPORK_16_INSTANTSEND_AUTOLOCKS']
 
     def set_autoix_spork_state(self, state):
         if state:
