@@ -90,6 +90,7 @@ class AutoInstantSendTest(BitcoinTestFramework):
         required_balance = MASTERNODE_COLLATERAL * self.mn_count + 1
         while self.nodes[0].getbalance() < required_balance:
             set_mocktime(get_mocktime() + 1)
+            set_node_times(self.nodes, get_mocktime())
             self.nodes[0].generate(1)
         # create masternodes
         self.prepare_masternodes()
@@ -107,10 +108,12 @@ class AutoInstantSendTest(BitcoinTestFramework):
         # make sender funds mature for InstantSend
         for i in range(0, 2):
             set_mocktime(get_mocktime() + 1)
+            set_node_times(self.nodes, get_mocktime())
             self.nodes[0].generate(1)
         # sync nodes
         self.sync_all()
         set_mocktime(get_mocktime() + 1)
+        set_node_times(self.nodes, get_mocktime())
         sync_masternodes(self.nodes)
         for i in range(1, self.mn_count + 1):
             res = self.nodes[0].masternode("start-alias", "mn%d" % i)
@@ -137,6 +140,7 @@ class AutoInstantSendTest(BitcoinTestFramework):
 
         while self.get_autoix_bip9_status() == 'defined':
             set_mocktime(get_mocktime() + 1)
+            set_node_times(self.nodes, get_mocktime())
             self.nodes[0].generate(1)
             counter += 1
             if counter % sync_period == 0:
@@ -146,6 +150,7 @@ class AutoInstantSendTest(BitcoinTestFramework):
 
         while self.get_autoix_bip9_status() == 'started':
             set_mocktime(get_mocktime() + 1)
+            set_node_times(self.nodes, get_mocktime())
             self.nodes[0].generate(1)
             counter += 1
             if counter % sync_period == 0:
@@ -155,6 +160,7 @@ class AutoInstantSendTest(BitcoinTestFramework):
 
         while self.get_autoix_bip9_status() == 'locked_in':
             set_mocktime(get_mocktime() + 1)
+            set_node_times(self.nodes, get_mocktime())
             self.nodes[0].generate(1)
             counter += 1
             if counter % sync_period == 0:
