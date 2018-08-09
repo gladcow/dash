@@ -136,6 +136,7 @@ class AutoInstantSendTest(BitcoinTestFramework):
         sync_period = 20
 
         while self.get_autoix_bip9_status() == 'defined':
+            set_mocktime(get_mocktime() + 1)
             self.nodes[0].generate(1)
             counter += 1
             if counter % sync_period == 0:
@@ -144,6 +145,7 @@ class AutoInstantSendTest(BitcoinTestFramework):
                 sync_masternodes(self.nodes)
 
         while self.get_autoix_bip9_status() == 'started':
+            set_mocktime(get_mocktime() + 1)
             self.nodes[0].generate(1)
             counter += 1
             if counter % sync_period == 0:
@@ -152,6 +154,7 @@ class AutoInstantSendTest(BitcoinTestFramework):
                 sync_masternodes(self.nodes)
 
         while self.get_autoix_bip9_status() == 'locked_in':
+            set_mocktime(get_mocktime() + 1)
             self.nodes[0].generate(1)
             counter += 1
             if counter % sync_period == 0:
