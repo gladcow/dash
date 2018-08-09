@@ -207,7 +207,13 @@ std::string CSporkManager::GetSporkNameByID(int nSporkID)
 bool CSporkManager::GetSporkByHash(const uint256& hash, CSporkMessage &sporkRet)
 {
     const auto it = mapSporksByHash.find(hash);
-    return it != mapSporksByHash.end();
+
+    if (it == mapSporksByHash.end())
+        return false;
+
+    sporkRet = it->second;
+
+    return true;
 }
 
 bool CSporkManager::SetSporkAddress(const std::string& strAddress) {
