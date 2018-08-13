@@ -30,9 +30,9 @@ class SporkTest(BitcoinTestFramework):
         connect_nodes(self.nodes[0], 1)
 
     def get_test_spork_state(self, node):
-        info = node.spork('show')
+        info = node.spork('active')
         # use InstantSend spork for tests
-        return info['SPORK_2_INSTANTSEND_ENABLED'] < time()
+        return info['SPORK_2_INSTANTSEND_ENABLED']
 
     def set_test_spork_state(self, node, state):
         if state:
