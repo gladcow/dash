@@ -206,6 +206,8 @@ std::string CSporkManager::GetSporkNameByID(int nSporkID)
 
 bool CSporkManager::GetSporkByHash(const uint256& hash, CSporkMessage &sporkRet)
 {
+    LOCK(cs);
+
     const auto it = mapSporksByHash.find(hash);
 
     if (it == mapSporksByHash.end())
