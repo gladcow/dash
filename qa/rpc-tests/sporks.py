@@ -58,6 +58,7 @@ class SporkTest(BitcoinTestFramework):
                 break
             if time() > start + 10:
                 break
+            sleep(0.1)
         assert(sent)
 
         # restart nodes to check spork persistence
@@ -78,6 +79,7 @@ class SporkTest(BitcoinTestFramework):
                 break
             if time() > start + 10:
                 break
+            sleep(0.1)
         assert(sent)
 
 
