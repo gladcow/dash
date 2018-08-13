@@ -31,6 +31,7 @@ void CSporkManager::Clear()
 {
     LOCK(cs);
     mapSporksActive.clear();
+    mapSporksByHash.clear();
     sporkPubKeyID.SetNull();
     sporkPrivKey = CKey();
 }
