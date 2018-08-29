@@ -118,7 +118,7 @@ void masternode_list_help()
 {
     throw std::runtime_error(
             "masternode list ( \"mode\" \"filter\" )\n"
-            "Get a list of masternodes in different modes\n"
+            "Get a list of masternodes in different modes. This call is identical to masternodelist call.\n"
             "\nArguments:\n"
             "1. \"mode\"      (string, optional/required to use filter, defaults = json) The mode to run list in\n"
             "2. \"filter\"    (string, optional) Filter results. Partial match by outpoint by default in all modes,\n"
@@ -817,35 +817,7 @@ UniValue masternodelist(const JSONRPCRequest& request)
                 strMode != "protocol" && strMode != "payee" && strMode != "pubkey" &&
                 strMode != "rank" && strMode != "sentinel" && strMode != "status"))
     {
-        throw std::runtime_error(
-                "masternodelist ( \"mode\" \"filter\" )\n"
-                "Get a list of masternodes in different modes\n"
-                "\nArguments:\n"
-                "1. \"mode\"      (string, optional/required to use filter, defaults = json) The mode to run list in\n"
-                "2. \"filter\"    (string, optional) Filter results. Partial match by outpoint by default in all modes,\n"
-                "                                    additional matches in some modes are also available\n"
-                "\nAvailable modes:\n"
-                "  activeseconds  - Print number of seconds masternode recognized by the network as enabled\n"
-                "                   (since latest issued \"masternode start/start-many/start-alias\")\n"
-                "  addr           - Print ip address associated with a masternode (can be additionally filtered, partial match)\n"
-                "  daemon         - Print daemon version of a masternode (can be additionally filtered, exact match)\n"
-                "  full           - Print info in format 'status protocol payee lastseen activeseconds lastpaidtime lastpaidblock IP'\n"
-                "                   (can be additionally filtered, partial match)\n"
-                "  info           - Print info in format 'status protocol payee lastseen activeseconds sentinelversion sentinelstate IP'\n"
-                "                   (can be additionally filtered, partial match)\n"
-                "  json           - Print info in JSON format (can be additionally filtered, partial match)\n"
-                "  lastpaidblock  - Print the last block height a node was paid on the network\n"
-                "  lastpaidtime   - Print the last time a node was paid on the network\n"
-                "  lastseen       - Print timestamp of when a masternode was last seen on the network\n"
-                "  payee          - Print Dash address associated with a masternode (can be additionally filtered,\n"
-                "                   partial match)\n"
-                "  protocol       - Print protocol of a masternode (can be additionally filtered, exact match)\n"
-                "  keyid          - Print the masternode (not collateral) key id\n"
-                "  rank           - Print rank of a masternode based on current block\n"
-                "  sentinel       - Print sentinel version of a masternode (can be additionally filtered, exact match)\n"
-                "  status         - Print masternode status: PRE_ENABLED / ENABLED / EXPIRED / SENTINEL_PING_EXPIRED / NEW_START_REQUIRED /\n"
-                "                   UPDATE_REQUIRED / POSE_BAN / OUTPOINT_SPENT (can be additionally filtered, partial match)\n"
-                );
+        masternode_list_help();
     }
 
     if (strMode == "full" || strMode == "json" || strMode == "lastpaidtime" || strMode == "lastpaidblock") {
