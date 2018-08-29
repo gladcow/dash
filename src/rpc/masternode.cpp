@@ -172,10 +172,7 @@ void masternode_connect_help()
 
 UniValue masternode_connect(const JSONRPCRequest& request)
 {
-    if(request.fHelp)
-        masternode_connect_help();
-
-    if (request.params.size() < 2)
+    if(request.fHelp || request.params.size() < 2)
         masternode_connect_help();
 
     std::string strAddress = request.params[1].get_str();
@@ -212,10 +209,7 @@ void masternode_count_help()
 
 UniValue masternode_count(const JSONRPCRequest& request)
 {
-    if(request.fHelp)
-        masternode_count_help();
-
-    if (request.params.size() > 2)
+    if(request.fHelp || request.params.size() > 2)
         masternode_count_help();
 
     int nCount;
@@ -331,14 +325,11 @@ void masternode_start_alias_help()
 
 UniValue masternode_start_alias(const JSONRPCRequest& request)
 {
-    if(request.fHelp)
+    if(request.fHelp || request.params.size() < 2)
         masternode_start_alias_help();
 
     if (!EnsureWalletIsAvailable(request.fHelp))
         return NullUniValue;
-
-    if (request.params.size() < 2)
-        throw JSONRPCError(RPC_INVALID_PARAMETER, "Please specify an alias");
 
     {
         LOCK(pwalletMain->cs_wallet);

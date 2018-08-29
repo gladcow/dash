@@ -38,7 +38,7 @@ void gobject_count_help()
 
 UniValue gobject_count(const JSONRPCRequest& request)
 {
-    if (request.fHelp)
+    if (request.fHelp || request.params.size() > 2)
         gobject_count_help();
 
     std::string strMode{"json"};
@@ -47,7 +47,7 @@ UniValue gobject_count(const JSONRPCRequest& request)
         strMode = request.params[1].get_str();
     }
 
-    if (request.params.size() > 2 || (strMode != "json" && strMode != "all"))
+    if (strMode != "json" && strMode != "all")
         gobject_count_help();
 
     return strMode == "json" ? governance.ToJson() : governance.ToString();
@@ -65,10 +65,7 @@ void gobject_deserialize_help()
 
 UniValue gobject_deserialize(const JSONRPCRequest& request)
 {
-    if (request.fHelp)
-        gobject_deserialize_help();
-
-    if (request.params.size() != 2)
+    if (request.fHelp || request.params.size() != 2)
         gobject_deserialize_help();
 
     std::string strHex = request.params[1].get_str();
@@ -94,10 +91,7 @@ void gobject_check_help()
 
 UniValue gobject_check(const JSONRPCRequest& request)
 {
-    if (request.fHelp)
-        gobject_check_help();
-
-    if (request.params.size() != 2)
+    if (request.fHelp || request.params.size() != 2)
         gobject_check_help();
 
     // ASSEMBLE NEW GOVERNANCE OBJECT FROM USER PARAMETERS
@@ -144,15 +138,11 @@ void gobject_prepare_help()
 
 UniValue gobject_prepare(const JSONRPCRequest& request)
 {
-    if (request.fHelp)
+    if (request.fHelp || request.params.size() != 5)
         gobject_prepare_help();
 
     if (!EnsureWalletIsAvailable(request.fHelp))
         return NullUniValue;
-
-    if (request.params.size() != 5) {
-        throw JSONRPCError(RPC_INVALID_PARAMETER, "Correct usage is 'gobject prepare <parent-hash> <revision> <time> <data-hex>'");
-    }
 
     // ASSEMBLE NEW GOVERNANCE OBJECT FROM USER PARAMETERS
 
@@ -237,12 +227,8 @@ void gobject_submit_help()
 
 UniValue gobject_submit(const JSONRPCRequest& request)
 {
-    if (request.fHelp)
+    if (request.fHelp || ((request.params.size() < 5) || (request.params.size() > 6)))
         gobject_submit_help();
-
-    if ((request.params.size() < 5) || (request.params.size() > 6))  {
-        throw JSONRPCError(RPC_INVALID_PARAMETER, "Correct usage is 'gobject submit <parent-hash> <revision> <time> <data-hex> <fee-txid>'");
-    }
 
     if(!masternodeSync.IsBlockchainSynced()) {
         throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "Must wait for client to sync with masternode network. Try again in a minute or so.");
@@ -360,14 +346,10 @@ void gobject_vote_conf_help()
 
 UniValue gobject_vote_conf(const JSONRPCRequest& request)
 {
-    if (request.fHelp)
-        gobject_vote_conf_help();
-
-    if(request.params.size() != 4)
+    if (request.fHelp || request.params.size() != 4)
         gobject_vote_conf_help();
 
     uint256 hash;
-    std::string strVote;
 
     hash = ParseHashV(request.params[1], "Object hash");
     std::string strVoteSignal = request.params[2].get_str();
@@ -524,16 +506,10 @@ void gobject_vote_many_help()
 
 UniValue gobject_vote_many(const JSONRPCRequest& request)
 {
-    if (request.fHelp)
+    if (request.fHelp || request.params.size() != 4)
         gobject_vote_many_help();
 
-    if(request.params.size() != 4)
-        throw JSONRPCError(RPC_INVALID_PARAMETER, "Correct usage is 'gobject vote-many <governance-hash> [funding|valid|delete] [yes|no|abstain]'");
-
-    uint256 hash;
-    std::string strVote;
-
-    hash = ParseHashV(request.params[1], "Object hash");
+    uint256 hash = ParseHashV(request.params[1], "Object hash");
     std::string strVoteSignal = request.params[2].get_str();
     std::string strVoteOutcome = request.params[3].get_str();
 
@@ -567,16 +543,10 @@ void gobject_vote_alias_help()
 
 UniValue gobject_vote_alias(const JSONRPCRequest& request)
 {
-    if (request.fHelp)
+    if (request.fHelp || request.params.size() != 5)
         gobject_vote_alias_help();
 
-    if(request.params.size() != 5)
-        gobject_vote_alias_help();
-
-    uint256 hash;
-    std::string strVote;
-
-    hash = ParseHashV(request.params[1], "Object hash");
+    uint256 hash = ParseHashV(request.params[1], "Object hash");
     std::string strVoteSignal = request.params[2].get_str();
     std::string strVoteOutcome = request.params[3].get_str();
 
@@ -672,10 +642,7 @@ void gobject_list_help()
 
 UniValue gobject_list(const JSONRPCRequest& request)
 {
-    if (request.fHelp)
-        gobject_list_help();
-
-    if (request.params.size() > 3)
+    if (request.fHelp || request.params.size() > 3)
         gobject_list_help();
 
     std::string strCachedSignal = "valid";
@@ -704,10 +671,7 @@ void gobject_diff_help()
 
 UniValue gobject_diff(const JSONRPCRequest& request)
 {
-    if (request.fHelp)
-        gobject_diff_help();
-
-    if (request.params.size() > 3)
+    if (request.fHelp || request.params.size() > 3)
         gobject_diff_help();
 
     std::string strCachedSignal = "valid";
@@ -735,10 +699,7 @@ void gobject_get_help()
 
 UniValue gobject_get(const JSONRPCRequest& request)
 {
-    if (request.fHelp)
-        gobject_get_help();
-
-    if (request.params.size() != 2)
+    if (request.fHelp || request.params.size() != 2)
         gobject_get_help();
 
     // COLLECT VARIABLES FROM OUR USER
@@ -823,10 +784,7 @@ void gobject_getvotes_help()
 
 UniValue gobject_getvotes(const JSONRPCRequest& request)
 {
-    if (request.fHelp)
-        gobject_getvotes_help();
-
-    if (request.params.size() != 2)
+    if (request.fHelp || request.params.size() != 2)
         gobject_getvotes_help();
 
     // COLLECT PARAMETERS FROM USER
@@ -871,10 +829,7 @@ void gobject_getcurrentvotes_help()
 
 UniValue gobject_getcurrentvotes(const JSONRPCRequest& request)
 {
-    if (request.fHelp)
-        gobject_getcurrentvotes_help();
-
-    if (request.params.size() != 2 && request.params.size() != 4)
+    if (request.fHelp || (request.params.size() != 2 && request.params.size() != 4))
         gobject_getcurrentvotes_help();
 
     // COLLECT PARAMETERS FROM USER
