@@ -2016,12 +2016,10 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
                         tx.GetHash().ToString(), pfrom->id);
                 instantsend.AcceptLockRequest(txLockRequest);
                 instantsend.Vote(tx.GetHash(), connman);
-            }
-            else
-            {
+            } else {
                 CTxLockRequest request(tx);
-                if(request.IsSimple() && CInstantSend::CanAutoLock()) {
-                    if(!instantsend.ProcessTxLockRequest(request, connman))
+                if (request.IsSimple() && CInstantSend::CanAutoLock()) {
+                    if (!instantsend.ProcessTxLockRequest(request, connman))
                         LogPrint("instantsend", "Auto instantsend lock -- failed %s\n", tx.GetHash().ToString());
                 }
             }
