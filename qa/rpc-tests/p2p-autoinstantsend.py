@@ -9,6 +9,17 @@ from test_framework.util import *
 from time import *
 
 '''
+p2p-autoinstantsend.py
+
+Test automatic InstantSend locks functionality.
+
+Checks that simple transactions automatically become InstantSend locked, 
+complex transactions don't become IS-locked and this functionality is
+activated only if it is BIP9-activated and SPORK_16_INSTANTSEND_AUTOLOCKS is 
+active.
+
+Also checks that this functionality doesn't influence regular InstantSend
+transactions with high fee. 
 '''
 
 MASTERNODE_COLLATERAL = 1000
