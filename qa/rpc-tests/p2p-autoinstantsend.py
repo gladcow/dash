@@ -147,7 +147,7 @@ class AutoInstantSendTest(BitcoinTestFramework):
         # bip9 status is not updated
         # so, in this code nodes are synced once per 20 blocks
         counter = 0
-        sync_period = 20
+        sync_period = 10
 
         while self.get_autoix_bip9_status() == 'defined':
             set_mocktime(get_mocktime() + 1)
