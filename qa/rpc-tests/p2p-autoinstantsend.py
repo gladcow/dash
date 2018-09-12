@@ -142,7 +142,7 @@ class AutoInstantSendTest(BitcoinTestFramework):
 
     def activate_autoix_bip9(self):
         # sync nodes periodically
-        # if we sync them too often, activation takes too manty time
+        # if we sync them too often, activation takes too many time
         # if we sync them too rarely, nodes failed to update its state and
         # bip9 status is not updated
         # so, in this code nodes are synced once per 20 blocks
