@@ -154,10 +154,10 @@ public:
 
     void DoMaintenance() { CheckAndRemove(); }
 
-    // checks if we can automatically lock "simple" transactions
+    /// checks if we can automatically lock "simple" transactions
     static bool CanAutoLock();
 
-    // flag of the AutoLock Bip9 activation
+    /// flag of the AutoLock Bip9 activation
     static std::atomic<bool> isAutoLockBip9Active;
 };
 
