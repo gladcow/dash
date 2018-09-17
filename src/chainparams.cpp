@@ -237,7 +237,7 @@ public:
         nPoolMaxTransactions = 3;
         nFulfilledRequestExpireTime = 60*60; // fulfilled requests expire in 1 hour
 
-        strSporkAddresses = "Xgtyuk76vhuFW2iT7UAiHgNdWXCf3J34wh";
+        vSporkAddresses = {"Xgtyuk76vhuFW2iT7UAiHgNdWXCf3J34wh"};
         nMinSporkKeys = 1;
 
         checkpointData = (CCheckpointData) {
@@ -392,7 +392,7 @@ public:
         nPoolMaxTransactions = 3;
         nFulfilledRequestExpireTime = 5*60; // fulfilled requests expire in 5 minutes
 
-        strSporkAddresses = "yjPtiKh2uwk3bDutTEA2q9mCtXyiZRWn55";
+        vSporkAddresses = {"yjPtiKh2uwk3bDutTEA2q9mCtXyiZRWn55"};
         nMinSporkKeys = 1;
 
         checkpointData = (CCheckpointData) {
@@ -537,7 +537,7 @@ public:
         nPoolMaxTransactions = 3;
         nFulfilledRequestExpireTime = 5*60; // fulfilled requests expire in 5 minutes
 
-        strSporkAddresses = "yjPtiKh2uwk3bDutTEA2q9mCtXyiZRWn55";
+        vSporkAddresses = {"yjPtiKh2uwk3bDutTEA2q9mCtXyiZRWn55"};
         nMinSporkKeys = 1;
 
         checkpointData = (CCheckpointData) {
@@ -644,7 +644,7 @@ public:
         nFulfilledRequestExpireTime = 5*60; // fulfilled requests expire in 5 minutes
 
         // privKey: cP4EKFyJsHT39LDqgdcB43Y3YXjNyjb5Fuas1GQSeAtjnZWmZEQK
-        strSporkAddresses = "yj949n1UH6fDhw6HtVE5VMj2iSTaSWBMcW";
+        vSporkAddresses = {"yj949n1UH6fDhw6HtVE5VMj2iSTaSWBMcW"};
         nMinSporkKeys = 1;
 
         checkpointData = (CCheckpointData){
