@@ -2019,8 +2019,12 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
             } else {
                 CTxLockRequest request(tx);
                 if (request.IsSimple() && CInstantSend::CanAutoLock()) {
-                    if (!instantsend.ProcessTxLockRequest(request, connman))
+                    if (instantsend.ProcessTxLockRequest(request, connman)) {
+                        instantsend.AcceptLockRequest(request);
+                        instantsend.Vote(tx.GetHash(), connman);
+                    } else {
                         LogPrint("instantsend", "Auto instantsend lock -- failed %s\n", tx.GetHash().ToString());
+                    }
                 }
             }
 
