@@ -1276,7 +1276,7 @@ double CTxMemPool::UsedMemoryShare() const
     // function in src/init.cpp or mempoolInfoToJSON function in
     // src/rpc/blockchain.cpp)
     size_t maxmempool = GetArg("-maxmempool", DEFAULT_MAX_MEMPOOL_SIZE) * 1000000;
-    return DynamicMemoryUsage() / maxmempool;
+    return double(DynamicMemoryUsage()) / maxmempool;
 }
 
 void CTxMemPool::RemoveStaged(setEntries &stage, bool updateDescendants, MemPoolRemovalReason reason) {
