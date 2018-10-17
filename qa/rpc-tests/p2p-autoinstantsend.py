@@ -309,6 +309,5 @@ class AutoInstantSendTest(BitcoinTestFramework):
         assert(not self.send_simple_tx())
         assert(not self.send_complex_tx())
 
-
 if __name__ == '__main__':
     AutoInstantSendTest().main()
