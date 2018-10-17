@@ -8,6 +8,7 @@ from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import *
 from time import *
 
+
 '''
 p2p-autoinstantsend.py
 
@@ -239,8 +240,8 @@ class AutoInstantSendTest(BitcoinTestFramework):
         change_address = node_from.getnewaddress()
         fee = 0.001
         outputs={}
-        outputs[receiver_address] = amount
-        outputs[change_address] = in_amount - amount - fee
+        outputs[receiver_address] = satoshi_round(amount)
+        outputs[change_address] = satoshi_round(in_amount - amount - fee)
         rawtx = node_from.createrawtransaction(inputs, outputs)
         return node_from.signrawtransaction(rawtx)
 
@@ -308,6 +309,7 @@ class AutoInstantSendTest(BitcoinTestFramework):
         assert(self.send_regular_IX())
         assert(not self.send_simple_tx())
         assert(not self.send_complex_tx())
+
 
 if __name__ == '__main__':
     AutoInstantSendTest().main()
