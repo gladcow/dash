@@ -8,7 +8,6 @@ from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import *
 from time import *
 
-
 '''
 p2p-autoinstantsend.py
 
