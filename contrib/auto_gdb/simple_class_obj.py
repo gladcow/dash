@@ -12,13 +12,14 @@ import common_helpers
 
 
 simple_types = ["CMasternode", "CMasternodeVerification",
-                "CMasternodeBroadcast", "CMasternodeIndex", "CMasternodePing",
+                "CMasternodeBroadcast", "CMasternodePing",
                 "CMasternodeMan", "CDarksendQueue", "CDarkSendEntry",
-                "CTransaction", "CMutableTransaction", "CPrivateSendBase",
-                "CPrivateSendClient", "CPrivateSendServer", "CMasternodePayments",
+                "CTransaction", "CMutableTransaction", "CPrivateSendBaseSession",
+                "CPrivateSendBaseManager", "CPrivateSendClientSession",
+                "CPrivateSendClientManager", "CPrivateSendServer", "CMasternodePayments",
                 "CMasternodePaymentVote", "CMasternodeBlockPayees",
                 "CMasternodePayee", "CInstantSend", "CTxLockRequest",
-                "CTxLockVote", "CTxLockCandidate", "COutPoint", "CTxLockRequest",
+                "CTxLockVote", "CTxLockCandidate", "COutPoint",
                 "COutPointLock", "CSporkManager", "CMasternodeSync",
                 "CGovernanceManager", "CRateCheckBuffer", "CGovernanceObject",
                 "CGovernanceVote", "CGovernanceObjectVoteFile"]
