@@ -92,14 +92,14 @@ class AutoIXMempoolTest(DashTestFramework):
     def send_regular_IX(self, sender, receiver):
         receiver_addr = receiver.getnewaddress()
         txid = sender.instantsendtoaddress(receiver_addr, 1.0)
-        return self.check_IX_lock(txid, sender)
+        return self.wait_for_instantlock(txid, sender)
 
     # sends simple trx, it should become IX if autolocks are allowed
     def send_simple_tx(self, sender, receiver):
         raw_tx = self.create_raw_trx(sender, receiver, 1.0, 1, 4)
         txid = self.nodes[0].sendrawtransaction(raw_tx['hex'])
         self.sync_all()
-        return self.check_IX_lock(txid, sender)
+        return self.wait_for_instantlock(txid, sender)
 
     def get_mempool_size(self, node):
         info = node.getmempoolinfo()

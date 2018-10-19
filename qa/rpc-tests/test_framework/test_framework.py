@@ -354,7 +354,7 @@ class DashTestFramework(BitcoinTestFramework):
         rawtx = node_from.createrawtransaction(inputs, outputs)
         return node_from.signrawtransaction(rawtx)
 
-    def check_IX_lock(self, txid, node):
+    def wait_for_instantlock(self, txid, node):
         # wait for instantsend locks
         start = time()
         locked = False

@@ -100,21 +100,21 @@ class AutoInstantSendTest(DashTestFramework):
         fee = self.nodes[0].gettransaction(txid)['fee']
         expected_fee = MIN_FEE * len(self.nodes[0].getrawtransaction(txid, True)['vin'])
         assert_equal(fee, expected_fee)
-        return self.check_IX_lock(txid, self.nodes[0])
+        return self.wait_for_instantlock(txid, self.nodes[0])
 
     # sends simple trx, it should become IX if autolocks are allowed
     def send_simple_tx(self):
         raw_tx = self.create_raw_trx(self.nodes[0], self.nodes[self.receiver_idx], 1.0, 1, 4)
         txid = self.nodes[0].sendrawtransaction(raw_tx['hex'])
         self.sync_all()
-        return self.check_IX_lock(txid, self.nodes[0])
+        return self.wait_for_instantlock(txid, self.nodes[0])
 
     # sends complex trx, it should never become IX
     def send_complex_tx(self):
         raw_tx = self.create_raw_trx(self.nodes[0], self.nodes[self.receiver_idx], 1.0, 5, 100)
         txid = self.nodes[0].sendrawtransaction(raw_tx['hex'])
         self.sync_all()
-        return self.check_IX_lock(txid, self.nodes[0])
+        return self.wait_for_instantlock(txid, self.nodes[0])
 
     def run_test(self):
         # feed the sender with some balance
