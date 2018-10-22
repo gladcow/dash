@@ -42,4 +42,3 @@ class UsedSizeCommand (gdb.Command):
 
 UsedSizeCommand()
 
-

@@ -2,7 +2,7 @@
 This directory contains tools to automatically get data about the memory consumption by some objects in dashd process with the help of GDB debugger.
 
 ## dash_dbg.sh
-This shell script attaches GDB to running dashd process (should be builded with debug info), executes debug.gdb script and detaches.
+This shell script attaches GDB to running dashd process (should be built with debug info), executes debug.gdb script and detaches.
 By default it uses testnet setting,  see script comments to attach to mainnet dashd.
 
 ## debug.gdb
@@ -42,5 +42,4 @@ If some type is not listed here,  his size is calculated as sizeof result (excep
 
 ## common_helpers.py
 Several helper functions that are used in other python code.
-
 
