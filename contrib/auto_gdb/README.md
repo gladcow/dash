@@ -33,7 +33,7 @@ Example:
 ```
 
 ## stl_containers.py
-Contains helper classes to calculate memory used by the STL containers (list, vector, map, set, pair)
+Contains helper classes to calculate memory used by the STL containers (list, vector, map, set, pair).
 
 ## simple_class_obj.py
 Contains helper class to calculate memory used by the object as a sum of the memory used by its fields.
