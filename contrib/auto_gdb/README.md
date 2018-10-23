@@ -3,7 +3,7 @@ This directory contains tools to automatically get data about the memory consump
 
 ## dash_dbg.sh
 This shell script attaches GDB to the running dashd process (should be built with debug info), executes debug.gdb script and detaches.
-By default it uses testnet setting,  see script comments to attach to mainnet dashd.
+By default it uses testnet settings, see script comments to attach it to mainnet dashd.
 
 ## debug.gdb
 Contains debugger instructions to execute during attach: load python code and executes it for the objects we want to investigate.
