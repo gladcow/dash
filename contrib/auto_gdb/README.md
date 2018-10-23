@@ -36,7 +36,7 @@ Example:
 Contains helper classes to calculate memory used by the STL containers (list, vector, map, set, pair).
 
 ## simple_class_obj.py
-Contains helper class to calculate memory used by the object as a sum of the memory used by its fields.
+Contains a helper class to calculate the memory used by an object as a sum of the memory used by its fields.
 All processed objects of such type are listed in the this file,  you can add new types you are interested in to this list.
 If some type is not listed here,  his size is calculated as sizeof result (except STL containers which are processed in stl_containers.py).
 
