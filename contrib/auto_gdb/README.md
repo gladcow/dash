@@ -9,7 +9,7 @@ By default it uses testnet settings, see script comments to attach it to mainnet
 Contains debugger instructions to execute during attach: loads python code and executes it for the objects we want to investigate.
 
 ## log_size.py
-Contains definition of the gdb command log_size. After loading of this script it can be called from gdb command line or other gdb scripts.
+Contains definition of the gdb command log_size. After this script loads it can be called from gdb command line or other gdb scripts.
 Command params:
 `log_size arg0 arg1`
 `arg0` - name of object whose memory will be written in log file
