@@ -50,7 +50,7 @@ class AutoIXMempoolTest(DashTestFramework):
             self.nodes[0].generate(1)
 
         # sync nodes
-        self.sync_all()
+        self.sync_all(120)
         sync_masternodes(self.nodes, True)
 
         assert(self.get_autoix_bip9_status() == 'active')
