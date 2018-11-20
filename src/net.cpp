@@ -2655,6 +2655,21 @@ void CConnman::RelayInvFiltered(CInv &inv, const CTransaction& relatedTx, const 
     }
 }
 
+void CConnman::RelayInvFiltered(CInv &inv, const uint256& relatedTxHash, const int minProtoVersion)
+{
+    LOCK(cs_vNodes);
+    for (const auto& pnode : vNodes) {
+        if(pnode->nVersion < minProtoVersion)
+            continue;
+        {
+            LOCK(pnode->cs_filter);
+            if(pnode->pfilter && !pnode->pfilter->contains(relatedTxHash))
+                continue;
+        }
+        pnode->PushInventory(inv);
+    }
+}
+
 void CConnman::RemoveAskFor(const uint256& hash)
 {
     mapAlreadyAskedFor.erase(hash);
