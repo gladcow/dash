@@ -1156,7 +1156,7 @@ void CTxLockVote::Relay(CConnman& connman) const
 {
     CInv inv(MSG_TXLOCK_VOTE, GetHash());
     CTxLockRequest request;
-    if (instantsend.GetTxLockRequest(txHash, request)) {
+    if (instantsend.GetTxLockRequest(txHash, request) && request) {
         connman.RelayInvFiltered(inv, *request.tx);
     } else {
         connman.RelayInv(inv);
