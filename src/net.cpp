@@ -2635,8 +2635,7 @@ void CConnman::RelayTransaction(const CTransaction& tx)
             // differs from simple tx processing in PushInventory
             // and tx info will not be available there.
             LOCK(pnode->cs_filter);
-            if(pnode->pfilter && !pnode->pfilter->IsRelevantAndUpdate(tx))
-                continue;
+            if(pnode->pfilter && !pnode->pfilter->IsRelevantAndUpdate(tx)) continue;
         }
         pnode->PushInventory(inv);
     }
@@ -2668,12 +2667,10 @@ void CConnman::RelayInvFiltered(CInv &inv, const uint256& relatedTxHash, const i
 {
     LOCK(cs_vNodes);
     for (const auto& pnode : vNodes) {
-        if(pnode->nVersion < minProtoVersion)
-            continue;
+        if(pnode->nVersion < minProtoVersion) continue;
         {
             LOCK(pnode->cs_filter);
-            if(pnode->pfilter && !pnode->pfilter->contains(relatedTxHash))
-                continue;
+            if(pnode->pfilter && !pnode->pfilter->contains(relatedTxHash)) continue;
         }
         pnode->PushInventory(inv);
     }
