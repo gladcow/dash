@@ -271,16 +271,8 @@ bool CBloomFilter::IsRelevantAndUpdate(const CTransaction& tx)
             return true;
 
         // Match if the filter contains any arbitrary script data element in any scriptSig in tx
-        CScript::const_iterator pc = txin.scriptSig.begin();
-        std::vector<unsigned char> data;
-        while (pc < txin.scriptSig.end())
-        {
-            opcodetype opcode;
-            if (!txin.scriptSig.GetOp(pc, opcode, data))
-                break;
-            if (data.size() != 0 && contains(data))
-                return true;
-        }
+        if(CheckScript(txin.scriptSig))
+            return true;
     }
 
     return false;
