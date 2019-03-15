@@ -113,6 +113,12 @@ bool CBloomFilter::contains(const uint256& hash) const
     return contains(data);
 }
 
+bool CBloomFilter::contains(const uint160& hash) const
+{
+    std::vector<unsigned char> data(hash.begin(), hash.end());
+    return contains(data);
+}
+
 void CBloomFilter::clear()
 {
     vData.assign(vData.size(),0);
