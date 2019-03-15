@@ -10,6 +10,7 @@
 #include <vector>
 
 class COutPoint;
+class CScript;
 class CTransaction;
 class uint256;
 class uint160;
@@ -58,6 +59,10 @@ private:
     CBloomFilter(unsigned int nElements, double nFPRate, unsigned int nTweak);
     friend class CRollingBloomFilter;
 
+    // Check matches for arbitrary script data elements
+    bool CheckScript(const CScript& script) const;
+    // Check additional matches for special transactions
+    bool CheckSpecialTransactionMatches(const CTransaction& tx) const;
 public:
     /**
      * Creates a new bloom filter which will provide the given fp rate when filled with the given number of elements

@@ -5,6 +5,10 @@
 #include "bloom.h"
 
 #include "primitives/transaction.h"
+#include "evo/specialtx.h"
+#include "evo/providertx.h"
+#include "evo/cbtx.h"
+#include "llmq/quorums_commitment.h"
 #include "hash.h"
 #include "script/script.h"
 #include "script/standard.h"
@@ -137,6 +141,78 @@ bool CBloomFilter::IsWithinSizeConstraints() const
     return vData.size() <= MAX_BLOOM_FILTER_SIZE && nHashFuncs <= MAX_HASH_FUNCS;
 }
 
+// Match if the filter contains any arbitrary script data element in script
+bool CBloomFilter::CheckScript(const CScript &script) const
+{
+    CScript::const_iterator pc = script.begin();
+    std::vector<unsigned char> data;
+    while (pc < script.end()) {
+        opcodetype opcode;
+        if (!script.GetOp(pc, opcode, data))
+            break;
+        if (data.size() != 0 && contains(data))
+            return true;
+    }
+    return false;
+}
+
+// If the transaction is a special transaction that has a registration
+// transaction hash, test the registration transaction hash.
+// If the transaction is a special transaction with any public keys or any
+// public key hashes test them.
+// If the transaction is a special transaction with payout addresses test
+// the hash160 of those addresses.
+bool CBloomFilter::CheckSpecialTransactionMatches(const CTransaction &tx) const
+{
+    if(tx.nVersion < 3 || tx.nType == TRANSACTION_NORMAL)
+        return false; // it is not special transaction
+    if (tx.nType == TRANSACTION_PROVIDER_REGISTER) {
+        CProRegTx proTx;
+        if (GetTxPayload(tx, proTx)) {
+            if(contains(proTx.collateralOutpoint))
+                return true;
+            if(contains(proTx.keyIDOwner))
+                return true;
+            if(contains(proTx.keyIDVoting))
+                return true;
+            if(CheckScript(proTx.scriptPayout))
+                return true;
+        }
+    } else if (tx.nType == TRANSACTION_PROVIDER_UPDATE_SERVICE) {
+        CProUpServTx proTx;
+        if (GetTxPayload(tx, proTx)) {
+            if(contains(proTx.proTxHash))
+                return true;
+            if(CheckScript(proTx.scriptOperatorPayout))
+                return true;
+        }
+    } else if (tx.nType == TRANSACTION_PROVIDER_UPDATE_REGISTRAR) {
+        CProUpRegTx proTx;
+        if (GetTxPayload(tx, proTx)) {
+            if(contains(proTx.proTxHash))
+                return true;
+            if(contains(proTx.keyIDVoting))
+                return true;
+            if(CheckScript(proTx.scriptPayout))
+                return true;
+        }
+    } else if (tx.nType == TRANSACTION_PROVIDER_UPDATE_REVOKE) {
+        CProUpRevTx proTx;
+        if (GetTxPayload(tx, proTx)) {
+            if(contains(proTx.proTxHash))
+                return true;
+        }
+    } else if (tx.nType == TRANSACTION_COINBASE) {
+        ; // No aditional checks for this transaction type
+    } else if (tx.nType == TRANSACTION_QUORUM_COMMITMENT) {
+        ; // No aditional checks for this transaction type
+    } else {
+        LogPrintf("Unknown special transaction type in Bloom filter check.");
+    }
+
+    return false;
+}
+
 bool CBloomFilter::IsRelevantAndUpdate(const CTransaction& tx)
 {
     bool fFound = false;
@@ -149,6 +225,9 @@ bool CBloomFilter::IsRelevantAndUpdate(const CTransaction& tx)
     const uint256& hash = tx.GetHash();
     if (contains(hash))
         fFound = true;
+
+    // Check additional matches for special transactions
+    fFound = fFound || CheckSpecialTransactionMatches(tx);
 
     for (unsigned int i = 0; i < tx.vout.size(); i++)
     {
