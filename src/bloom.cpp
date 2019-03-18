@@ -162,39 +162,49 @@ bool CBloomFilter::CheckScript(const CScript &script) const
 // public key hashes test them.
 // If the transaction is a special transaction with payout addresses test
 // the hash160 of those addresses.
-bool CBloomFilter::CheckSpecialTransactionMatches(const CTransaction &tx) const
+// Filter is updated only if it has BLOOM_UPDATE_ALL flag to be able to have
+// simple SPV wallets that doesn't work with DIP2 transactions (multicoin
+// wallets, etc.)
+bool CBloomFilter::CheckSpecialTransactionMatchesAndUpdate(const CTransaction &tx)
 {
-    if(tx.nVersion < 3 || tx.nType == TRANSACTION_NORMAL)
+    if(tx.nVersion < 3 || tx.nType == TRANSACTION_NORMAL) {
         return false; // it is not special transaction
+    }
     if (tx.nType == TRANSACTION_PROVIDER_REGISTER) {
         CProRegTx proTx;
         if (GetTxPayload(tx, proTx)) {
-            if(contains(proTx.collateralOutpoint))
+            if(contains(proTx.collateralOutpoint) ||
+                    contains(proTx.keyIDOwner) ||
+                    contains(proTx.keyIDVoting) ||
+                    CheckScript(proTx.scriptPayout)) {
+                if ((nFlags & BLOOM_UPDATE_MASK) == BLOOM_UPDATE_ALL)
+                    insert(tx.GetHash());
                 return true;
-            if(contains(proTx.keyIDOwner))
-                return true;
-            if(contains(proTx.keyIDVoting))
-                return true;
-            if(CheckScript(proTx.scriptPayout))
-                return true;
+            }
         }
     } else if (tx.nType == TRANSACTION_PROVIDER_UPDATE_SERVICE) {
         CProUpServTx proTx;
         if (GetTxPayload(tx, proTx)) {
-            if(contains(proTx.proTxHash))
+            if(contains(proTx.proTxHash)) {
                 return true;
-            if(CheckScript(proTx.scriptOperatorPayout))
+            }
+            if(CheckScript(proTx.scriptOperatorPayout)) {
+                if ((nFlags & BLOOM_UPDATE_MASK) == BLOOM_UPDATE_ALL)
+                    insert(proTx.proTxHash);
                 return true;
+            }
         }
     } else if (tx.nType == TRANSACTION_PROVIDER_UPDATE_REGISTRAR) {
         CProUpRegTx proTx;
         if (GetTxPayload(tx, proTx)) {
             if(contains(proTx.proTxHash))
                 return true;
-            if(contains(proTx.keyIDVoting))
+            if(contains(proTx.keyIDVoting) ||
+                    CheckScript(proTx.scriptPayout)) {
+                if ((nFlags & BLOOM_UPDATE_MASK) == BLOOM_UPDATE_ALL)
+                    insert(proTx.proTxHash);
                 return true;
-            if(CheckScript(proTx.scriptPayout))
-                return true;
+            }
         }
     } else if (tx.nType == TRANSACTION_PROVIDER_UPDATE_REVOKE) {
         CProUpRevTx proTx;
@@ -227,7 +237,7 @@ bool CBloomFilter::IsRelevantAndUpdate(const CTransaction& tx)
         fFound = true;
 
     // Check additional matches for special transactions
-    fFound = fFound || CheckSpecialTransactionMatches(tx);
+    fFound = fFound || CheckSpecialTransactionMatchesAndUpdate(tx);
 
     for (unsigned int i = 0; i < tx.vout.size(); i++)
     {
