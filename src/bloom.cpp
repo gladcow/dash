@@ -170,7 +170,8 @@ bool CBloomFilter::CheckSpecialTransactionMatchesAndUpdate(const CTransaction &t
     if(tx.nVersion < 3 || tx.nType == TRANSACTION_NORMAL) {
         return false; // it is not a special transaction
     }
-    if (tx.nType == TRANSACTION_PROVIDER_REGISTER) {
+    switch(tx.nType) {
+    case(TRANSACTION_PROVIDER_REGISTER): {
         CProRegTx proTx;
         if (GetTxPayload(tx, proTx)) {
             if(contains(proTx.collateralOutpoint) ||
@@ -182,7 +183,9 @@ bool CBloomFilter::CheckSpecialTransactionMatchesAndUpdate(const CTransaction &t
                 return true;
             }
         }
-    } else if (tx.nType == TRANSACTION_PROVIDER_UPDATE_SERVICE) {
+        return false;
+    }
+    case(TRANSACTION_PROVIDER_UPDATE_SERVICE): {
         CProUpServTx proTx;
         if (GetTxPayload(tx, proTx)) {
             if(contains(proTx.proTxHash)) {
@@ -194,7 +197,9 @@ bool CBloomFilter::CheckSpecialTransactionMatchesAndUpdate(const CTransaction &t
                 return true;
             }
         }
-    } else if (tx.nType == TRANSACTION_PROVIDER_UPDATE_REGISTRAR) {
+        return false;
+    }
+    case(TRANSACTION_PROVIDER_UPDATE_REGISTRAR): {
         CProUpRegTx proTx;
         if (GetTxPayload(tx, proTx)) {
             if(contains(proTx.proTxHash))
@@ -206,20 +211,23 @@ bool CBloomFilter::CheckSpecialTransactionMatchesAndUpdate(const CTransaction &t
                 return true;
             }
         }
-    } else if (tx.nType == TRANSACTION_PROVIDER_UPDATE_REVOKE) {
+        return false;
+    }
+    case(TRANSACTION_PROVIDER_UPDATE_REVOKE): {
         CProUpRevTx proTx;
         if (GetTxPayload(tx, proTx)) {
             if(contains(proTx.proTxHash))
                 return true;
         }
-    } else if (tx.nType == TRANSACTION_COINBASE) {
-        ; // No aditional checks for this transaction type
-    } else if (tx.nType == TRANSACTION_QUORUM_COMMITMENT) {
-        ; // No aditional checks for this transaction type
-    } else {
-        LogPrintf("Unknown special transaction type in Bloom filter check.");
+        return false;
+    }
+    case(TRANSACTION_COINBASE):
+    case(TRANSACTION_QUORUM_COMMITMENT):
+        // No aditional checks for this transaction types
+        return false;
     }
 
+    LogPrintf("Unknown special transaction type in Bloom filter check.");
     return false;
 }
 
