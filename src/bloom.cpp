@@ -168,7 +168,7 @@ bool CBloomFilter::CheckScript(const CScript &script) const
 bool CBloomFilter::CheckSpecialTransactionMatchesAndUpdate(const CTransaction &tx)
 {
     if(tx.nVersion < 3 || tx.nType == TRANSACTION_NORMAL) {
-        return false; // it is not special transaction
+        return false; // it is not a special transaction
     }
     if (tx.nType == TRANSACTION_PROVIDER_REGISTER) {
         CProRegTx proTx;
