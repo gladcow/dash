@@ -254,27 +254,17 @@ bool CBloomFilter::IsRelevantAndUpdate(const CTransaction& tx)
         // If this matches, also add the specific output that was matched.
         // This means clients don't have to update the filter themselves when a new relevant tx 
         // is discovered in order to find spending transactions, which avoids round-tripping and race conditions.
-        CScript::const_iterator pc = txout.scriptPubKey.begin();
-        std::vector<unsigned char> data;
-        while (pc < txout.scriptPubKey.end())
-        {
-            opcodetype opcode;
-            if (!txout.scriptPubKey.GetOp(pc, opcode, data))
-                break;
-            if (data.size() != 0 && contains(data))
+        if(CheckScript(txout.scriptPubKey)) {
+            fFound = true;
+            if ((nFlags & BLOOM_UPDATE_MASK) == BLOOM_UPDATE_ALL)
+                insert(COutPoint(hash, i));
+            else if ((nFlags & BLOOM_UPDATE_MASK) == BLOOM_UPDATE_P2PUBKEY_ONLY)
             {
-                fFound = true;
-                if ((nFlags & BLOOM_UPDATE_MASK) == BLOOM_UPDATE_ALL)
+                txnouttype type;
+                std::vector<std::vector<unsigned char> > vSolutions;
+                if (Solver(txout.scriptPubKey, type, vSolutions) &&
+                        (type == TX_PUBKEY || type == TX_MULTISIG))
                     insert(COutPoint(hash, i));
-                else if ((nFlags & BLOOM_UPDATE_MASK) == BLOOM_UPDATE_P2PUBKEY_ONLY)
-                {
-                    txnouttype type;
-                    std::vector<std::vector<unsigned char> > vSolutions;
-                    if (Solver(txout.scriptPubKey, type, vSolutions) &&
-                            (type == TX_PUBKEY || type == TX_MULTISIG))
-                        insert(COutPoint(hash, i));
-                }
-                break;
             }
         }
     }
